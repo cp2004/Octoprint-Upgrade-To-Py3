@@ -27,4 +27,6 @@ PATH_TO_OCTOPRINT=$PATH_TO_VENV/bin/octoprint
 
 #Try to create a backup
 echo "Creating a backup so we can read the plugin list"
-$PATH_TO_OCTOPRINT plugins backup:backup --exclude timelapse --exclude uploads
+
+BACKUP_NAME=$($PATH_TO_VENV/bin/octoprint plugins backup:backup --exclude timelapse --exclude uploads | grep -oP '(?<=Creating backup at )(.*)(?=,)')
+echo $BACKUP_NAME
