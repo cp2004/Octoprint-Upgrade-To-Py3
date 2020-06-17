@@ -3,6 +3,7 @@ import subprocess
 
 print("This script will move your old installation back (Just in case!)")
 print("Only use it if you have used the upgrade script and it failed")
+go = input("Press [enter] to continue, ctrl-c to stop")
 PATH_TO_VENV = None
 CONFBASE = None
 if os.path.isfile("/etc/octopi_version"):
