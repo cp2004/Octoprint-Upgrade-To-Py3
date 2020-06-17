@@ -40,25 +40,31 @@ octoprint_zip_name = subprocess.check_output(
 
 backup_target = '{}/data/backup/{}'.format(CONFBASE, octoprint_zip_name)
 
+print("Extracting plugin_list.json from backup")
+with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
+    try:
+        zip_ref.getinfo("plugin_list.json")
+    except KeyError:
+        # no plugin list
+        plugin_list = None
+    else:
+        # read in list
+        with zip_ref.open("plugin_list.json") as plugins:
+            plugin_list = json.load(plugins)
 
-if os.path.isfile(os.path.join(backup_target, 'plugin_list.json')):
-    plugins_installed = True
-    print("Plugins found")
+if len(plugin_list):
+    print("\nPlugins installed:")
+    plugin_keys = []
+    for plugin in plugin_list:
+        print("- {}".format(plugin['name']) + item['name'])
+        plugin_keys.append(plugin['key'])
+    print("If you think there is something missing from here, please check the list of plugins in Octoprint")
+    go = raw_input("Continue? [enter]")
 else:
-    plugins_installed = False
     print("No plugins found")
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
     go = raw_input("Press [enter] to continue, or ctrl-c to quit")
 
-if plugins_installed:
-    with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugins:
-        plugin_list = json.load(plugins)
-        print("\nPlugins installed:")
-        plugin_names = []
-        for item in plugin_list:
-            print("- " + item['name'])
-        print("If you think there is something missing from here, please check the list of plugins in Octoprint")
-        go = raw_input("Continue? [enter]")
 
 # Move octoprint venv, create new one etc. etc.
 # I'm going to leave this commented out until everything else works
