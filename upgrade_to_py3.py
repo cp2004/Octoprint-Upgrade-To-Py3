@@ -10,18 +10,21 @@ import re
 
 
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
+print("It requires an internet connection to run")
+print("It will install the latest OctoPrint version, as well as the latest version of all plugins")
 print("WORK IN PROGRESS - Does not actually do anything to your install! (Yet)")
 confirm = input("Press [enter] to continue or ctrl-c to quit")
 
 PATH_TO_VENV = None
+CONFBASE = None
 if os.path.isfile("/etc/octopi_version"):
-    print("Detected OctoPi installation")
+    print("\nDetected OctoPi installation")
     PATH_TO_VENV = "/home/pi/oprint"
     STOP_COMMAND = "sudo service octoprint stop"
     START_COMMAND = "sudo service octoprint start"
     CONFBASE = "/home/pi/.octoprint"
 else:
-    print("OctoPi install not detected")
+    print("\nManual install detected")
     print("Please provide the path to your virtual environment and the config directory of octoprint")
     while not PATH_TO_VENV:
         path = input("Path: ")
@@ -37,7 +40,7 @@ else:
         else:
             print("Invalid path, please try again")
             CONFBASE = None
-    print("To do the install, we need the service stop and start commands.")
+    print("\nTo do the install, we need the service stop and start commands.")
     STOP_COMMAND = input("Stop command: ")
     START_COMMAND = input("Start command: ")
 
@@ -49,7 +52,8 @@ try:
         capture_output=True
     ).stdout.rstrip().decode('utf-8')
 except subprocess.CalledProcessError:
-    print("Error getting backup from Octoprint, exiting")
+    print("Error getting backup from Octoprint")
+    print("If you are on a manual install, please check octoprint is installed in the venv specified")
     sys.exit(0)
 octoprint_zip_name = re.search(r'(?<=Creating backup at )(.*)(?=.zip)', backup_output).group()
 
