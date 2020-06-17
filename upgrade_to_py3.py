@@ -4,7 +4,7 @@ import os
 import json
 import subprocess
 import zipfile
-import getpass
+import requests
 
 
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
@@ -80,12 +80,18 @@ for command in commands:
     print("Pretending to do: {}".format(command))
     # output = subprocess.check_output(command)
 
+if len(plugin_keys):
+    # Get the plugin repo
+    print("Fetching octoprint's plugin repo")
+    PLUGIN_REPO = requests.get('https://plugins.octoprint.org/plugins.json').json()
+    plugin_urls = []
+    for plugin in PLUGIN_REPO:
+        if plugin['id'] in plugin_keys:
+            plugin_urls.append(plugin['archive'])
 
-# Install plugins that were installed to the new env
-print("\nReinstalling plugins...")
-with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugin_file:
-    plugin_list = json.load(plugin_file)
-    for plugin in plugin_list:
+    # Install plugins that were installed to the new env
+    print("\nReinstalling plugins...")
+    for plugin in plugin_urls:
         print("Pretending to install {}".format(plugin['name']))
         print("{} -m pip install {}".format(PATH_TO_PYTHON, plugin['url']))
         # output = subprocess.check_output(
