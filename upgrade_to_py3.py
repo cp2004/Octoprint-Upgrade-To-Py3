@@ -9,7 +9,7 @@ import requests
 
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
 print("WORK IN PROGRESS - Does not actually do anything to your install! (Yet)")
-confirm = raw_input("Press [enter] to continue or ctrl-c to quit")
+confirm = input("Press [enter] to continue or ctrl-c to quit")
 
 PATH_TO_VENV = None
 if os.path.isfile("/etc/octopi_version"):
@@ -17,21 +17,21 @@ if os.path.isfile("/etc/octopi_version"):
     PATH_TO_VENV = "/home/pi/oprint"
     STOP_COMMAND = "sudo service octoprint stop"
     START_COMMAND = "sudo service octoprint start"
-    CONFBASE = "/home/pi/.octoprint"
+    CONFBASE = "/home/pi/.octoprint/"
 else:
     print("OctoPi install not detected")
     print("Please provide the path to your virtual environment and the config directory of octoprint")
     while not PATH_TO_VENV:
-        path = raw_input("Path: ")
+        path = input("Path: ")
         if os.path.isfile("{}/bin/python".format(path)):
             print("Venv found")
             PATH_TO_VENV = path
         else:
             print("Invalid venv path, please try again")
-    CONFBASE = raw_input("Config directory: ")
+    CONFBASE = input("Config directory: ")
     print("To do the install, we need the service stop and start commands.")
-    STOP_COMMAND = raw_input("Stop command: ")
-    START_COMMAND = raw_input("Start command: ")
+    STOP_COMMAND = input("Stop command: ")
+    START_COMMAND = input("Start command: ")
 
 print("\nCreating a backup so we can read the plugin list")
 octoprint_zip_name = subprocess.check_output(
@@ -59,11 +59,11 @@ if len(plugin_list):
         print("- {}".format(plugin['name']) + item['name'])
         plugin_keys.append(plugin['key'])
     print("If you think there is something missing from here, please check the list of plugins in Octoprint")
-    go = raw_input("Continue? [enter]")
+    go = input("Continue? [enter]")
 else:
     print("No plugins found")
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
-    go = raw_input("Press [enter] to continue, or ctrl-c to quit")
+    go = input("Press [enter] to continue, or ctrl-c to quit")
 
 
 # Move octoprint venv, create new one etc. etc.
