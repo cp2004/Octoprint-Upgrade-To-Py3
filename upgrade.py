@@ -150,7 +150,7 @@ if len(plugin_keys):
         print("It is recommended that you reinstall them when you log back into octoprint")
 
 # Print plugins that were not on the repo
-print("These plugins were not found on the repo, please install them manually")
+print("\nThese plugins were not found on the repo, please install them manually")
 for not_found_plugin in plugin_keys:
     for plugin in plugin_list:
         if plugin['key'] == not_found_plugin:
