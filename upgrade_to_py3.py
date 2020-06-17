@@ -33,9 +33,9 @@ else:
 
 print("\nCreating a backup so we can read the plugin list")
 octoprint_zip_name = subprocess.check_output(
-    "{}/bin/octoprint plugins backup:backup --exclude timelapse --exclude uploads | grep -oP '(?<=Creating backup at )(.*)(?=.zip)'".format(PATH_TO_VENV),
-    shell=True
+    "{}/bin/octoprint plugins backup:backup --exclude timelapse --exclude uploads | grep -oP '(?<=Creating backup at )(.*)(?=.zip)'".format(PATH_TO_VENV)
 ).rstrip()
+
 backup_target = '/home/{}/.octoprint/data/backup/{}'.format(getpass.getuser(), octoprint_zip_name)
 print("Unzipping...")
 with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
@@ -73,7 +73,7 @@ commands = [
 print("\nMoving venv and installing octoprint...")
 for command in commands:
     print("Pretending to do: {}".format(command))
-    # output = subprocess.check_output(command, shell=True)
+    # output = subprocess.check_output(command)
 
 
 # Install plugins that were installed to the new env
@@ -84,13 +84,12 @@ with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugin_file:
         print("Pretending to install {}".format(plugin['name']))
         print("{} -m pip install {}".format(PATH_TO_PYTHON, plugin['url']))
         # output = subprocess.check_output(
-        #     "{} -m pip install {}".format(PATH_TO_PYTHON, plugin['url']),
-        #     shell=True
+        #     "{} -m pip install {}".format(PATH_TO_PYTHON, plugin['url'])
         # )
 
 print("\nStarting Octoprint")
 print("Pretending to run {}".format(START_COMMAND))
-# output = subprocess.check_output(START_COMMAND, shell=True)
+# output = subprocess.check_output(START_COMMAND)
 
 print("\nCleaning Up... \nRemoving backup zip")
 os.remove("{}.zip".format(backup_target))
