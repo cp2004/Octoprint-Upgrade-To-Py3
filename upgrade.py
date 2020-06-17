@@ -95,7 +95,7 @@ commands = [
     ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV],  # Only time we want to use system python
     [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint']
 ]
-print("\nMoving venv and installing octoprint... (This may take a while)")
+print("\nMoving venv and installing octoprint... (This may take a while - Do not cancel!)")
 for command in commands:
     try:
         output = subprocess.run(
