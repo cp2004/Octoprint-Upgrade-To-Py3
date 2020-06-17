@@ -95,7 +95,7 @@ commands = [
     ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV],  # Only time we want to use system python
     [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint']
 ]
-print("\nMoving venv and installing octoprint...")
+print("\nMoving venv and installing octoprint... (This may take a while)")
 for command in commands:
     try:
         output = subprocess.run(
@@ -111,10 +111,11 @@ for command in commands:
         os.remove("{}.zip".format(backup_target))
         print("Exiting")
         sys.exit(0)
+print("Octoprint successfully installed")
 
 if len(plugin_keys):
     # Get the plugin repo
-    print("Fetching octoprint's plugin repo")
+    print("\Fetching octoprint's plugin repo")
     PLUGIN_REPO = requests.get('https://plugins.octoprint.org/plugins.json').json()
     plugin_urls = []
     for plugin in PLUGIN_REPO:
@@ -145,7 +146,6 @@ if len(plugin_keys):
         print("It is recommended that you reinstall them when you log back into octoprint")
 
 print("\nStarting Octoprint")
-print("Pretending to run {}".format(START_COMMAND))
 try:
     backup_output = subprocess.run(
         START_COMMAND.split(),
