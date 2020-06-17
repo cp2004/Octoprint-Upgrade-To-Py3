@@ -42,3 +42,4 @@ for command in COMMANDS:
         print(e)
 
 print("Successfully reverted to the old install")
+print("Before reverting another failed install you should remove the folder {}FAIL.bak".format(PATH_TO_VENV))
