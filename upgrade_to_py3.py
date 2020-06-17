@@ -62,6 +62,8 @@ with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugins:
     print("\nPlugins installed:")
     for name in plugin_names:
         print('- ' + name)
+    print("If you think there is something missing from here, please check the list of plugins in Octoprint")
+    raw_input("Continue? [enter]")
 
 # Move octoprint venv, create new one etc. etc.
 # I'm going to leave this commented out until everything else works
