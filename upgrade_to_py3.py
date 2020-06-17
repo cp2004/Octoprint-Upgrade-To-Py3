@@ -92,21 +92,22 @@ commands = [
     STOP_COMMAND.split(),
     ['mv', PATH_TO_VENV, '{}.bak'.format(PATH_TO_VENV)],
     ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV],  # Only time we want to use system python
-    [PATH_TO_PYTHON, '-m', 'pip', 'install', '"OctoPrint>=1.4.0"']
+    [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint']
 ]
 print("\nMoving venv and installing octoprint...")
 for command in commands:
-    print("Pretending to do: {}".format(command))
-    #try:
-    #    output = subprocess.run(
-    #        command,
-    #        check=True,
-    #        capture_output=True
-    #    )
-    #except subprocess.CalledProcessError as e:
-    #    print("ERROR: Failed to install Octoprint")
-    #    print(e)
-    #    sys.exit(0)  # Should clean up the zips?
+    #print("Pretending to do: {}".format(command))
+    try:
+        output = subprocess.run(
+            command,
+            check=True,
+            capture_output=True
+        ).stdout.decode('utf-8')
+        print(output)
+    except subprocess.CalledProcessError as e:
+        print("ERROR: Failed to install Octoprint")
+        print(e)
+        sys.exit(0)  # Should clean up the zips?
 
 if len(plugin_keys):
     # Get the plugin repo
@@ -122,18 +123,18 @@ if len(plugin_keys):
     plugin_errors = []
     for plugin in plugin_urls:
         print("Installing {}".format(plugin))
-        print("Prentending to run {} -m pip install {}".format(PATH_TO_PYTHON, plugin))
-        #try:
-        #    backup_output = subprocess.run(
-        #        [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin],
-        #        check=True,
-        #        capture_output=True
-        #    ).stdout.rstrip().decode('utf-8')
-        #except subprocess.CalledProcessError as e:
-        #    plugin_errors.append(plugin[plugin])
-        #    print("Error installing plugin, maybe it's not compatible?")
-        #    print(e)
-        #    sys.exit(0)
+        #print("Prentending to run {} -m pip install {}".format(PATH_TO_PYTHON, plugin))
+        try:
+            backup_output = subprocess.run(
+                [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin],
+                check=True,
+                capture_output=True
+            ).stdout.rstrip().decode('utf-8')
+        except subprocess.CalledProcessError as e:
+            plugin_errors.append(plugin[plugin])
+            print("Error installing plugin, maybe it's not compatible?")
+            print(e)
+            sys.exit(0)
     if len(plugin_errors):
         print("Could not install these plugins:")
         for plugin in plugin_errors:
@@ -141,16 +142,16 @@ if len(plugin_keys):
 
 print("\nStarting Octoprint")
 print("Pretending to run {}".format(START_COMMAND))
-#try:
-#    backup_output = subprocess.run(
-#        START_COMMAND.split(),
-#        check=True,
-#        capture_output=True
-#    ).stdout.rstrip().decode('utf-8')
-#except subprocess.CalledProcessError as e:
-#    print("Error starting the OctoPrint service"")
-#    print(e)
-#    sys.exit(0)# output = subprocess.check_output(START_COMMAND)
+try:
+    backup_output = subprocess.run(
+        START_COMMAND.split(),
+        check=True,
+        capture_output=True
+    ).stdout.rstrip().decode('utf-8')
+except subprocess.CalledProcessError as e:
+    print("Error starting the OctoPrint service")
+    print(e)
+    sys.exit(0)
 
 print("\nCleaning Up... \nRemoving backup zip")
 os.remove("{}.zip".format(backup_target))
