@@ -17,9 +17,10 @@ if os.path.isfile("/etc/octopi_version"):
     PATH_TO_VENV = "/home/pi/oprint"
     STOP_COMMAND = "sudo service octoprint stop"
     START_COMMAND = "sudo service octoprint start"
+    CONFBASE = "/home/pi/.octoprint"
 else:
     print("OctoPi install not detected")
-    print("Please provide the path to your virtual environment")
+    print("Please provide the path to your virtual environment and the config directory of octoprint")
     while not PATH_TO_VENV:
         path = raw_input("Path: ")
         if os.path.isfile("{}/bin/python".format(path)):
@@ -27,6 +28,7 @@ else:
             PATH_TO_VENV = path
         else:
             print("Invalid venv path, please try again")
+    CONFBASE = raw_input("Config directory: ")
     print("To do the install, we need the service stop and start commands.")
     STOP_COMMAND = raw_input("Stop command: ")
     START_COMMAND = raw_input("Start command: ")
@@ -36,10 +38,7 @@ octoprint_zip_name = subprocess.check_output(
     "{}/bin/octoprint plugins backup:backup --exclude timelapse --exclude uploads | grep -oP '(?<=Creating backup at )(.*)(?=.zip)'".format(PATH_TO_VENV)
 ).rstrip()
 
-backup_target = '/home/{}/.octoprint/data/backup/{}'.format(getpass.getuser(), octoprint_zip_name)
-print("Unzipping...")
-with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
-    zip_ref.extractall(backup_target)
+backup_target = '{}/data/backup/{}'.format(CONFBASE, octoprint_zip_name)
 
 
 if os.path.isfile(os.path.join(backup_target, 'plugin_list.json')):
