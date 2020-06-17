@@ -68,8 +68,7 @@ commands = [
     STOP_COMMAND,
     'mv {} {}.bak'.format(PATH_TO_VENV, PATH_TO_VENV),
     'virtualenv --python=/usr/bin/python3 {}'.format(PATH_TO_VENV),  # Only time we want to use system python
-    '{} -m pip install "OctoPrint>=1.4.0"'.format(PATH_TO_PYTHON),
-    START_COMMAND,
+    '{} -m pip install "OctoPrint>=1.4.0"'.format(PATH_TO_PYTHON)
 ]
 print("\nMoving venv and installing octoprint...")
 for command in commands:
