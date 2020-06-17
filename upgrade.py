@@ -8,6 +8,10 @@ import zipfile
 import requests
 import re
 
+if sys.version_info.major != '3':
+    print("This script will only run on python 3")
+    print("Run using 'python3 upgrade.py'")
+    sys.exit(0)
 
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
 print("It requires an internet connection to run")

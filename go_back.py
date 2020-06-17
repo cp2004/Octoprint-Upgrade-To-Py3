@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 import os
 import subprocess
+import sys
+
+if sys.version_info.major != '3':
+    print("This script will only run on python 3")
+    print("Run using 'python3 go_back.py'")
+    sys.exit(0)
 
 print("This script will move your old installation back (Just in case!)")
 print("Only use it if you have used the upgrade script and it failed")
