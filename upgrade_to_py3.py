@@ -85,8 +85,7 @@ else:
     go = input("Press [enter] to continue, or ctrl-c to quit")
 
 
-# Move octoprint venv, create new one etc. etc.
-# I'm going to leave this commented out until everything else works
+# Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
 commands = [
     STOP_COMMAND.split(),
@@ -96,7 +95,6 @@ commands = [
 ]
 print("\nMoving venv and installing octoprint...")
 for command in commands:
-    #print("Pretending to do: {}".format(command))
     try:
         output = subprocess.run(
             command,
@@ -127,7 +125,6 @@ if len(plugin_keys):
     plugin_errors = []
     for plugin in plugin_urls:
         print("Installing {}".format(plugin))
-        #print("Prentending to run {} -m pip install {}".format(PATH_TO_PYTHON, plugin))
         try:
             backup_output = subprocess.run(
                 [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin],
