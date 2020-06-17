@@ -30,7 +30,13 @@ else:
             PATH_TO_VENV = path
         else:
             print("Invalid venv path, please try again")
-    CONFBASE = input("Config directory: ")
+    while not CONFBASE:
+        CONFBASE = input("Config directory: ")
+        if os.path.isfile(os.path.join(CONFBASE, 'config.yaml')):
+            print("Config directory valid")
+        else:
+            print("Invalid path, please try again")
+            CONFBASE = None
     print("To do the install, we need the service stop and start commands.")
     STOP_COMMAND = input("Stop command: ")
     START_COMMAND = input("Start command: ")
