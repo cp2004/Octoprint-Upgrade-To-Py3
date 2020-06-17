@@ -118,12 +118,13 @@ print("Octoprint successfully installed")
 
 if len(plugin_keys):
     # Get the plugin repo
-    print("\Fetching octoprint's plugin repo")
+    print("\nFetching octoprint's plugin repo")
     PLUGIN_REPO = requests.get('https://plugins.octoprint.org/plugins.json').json()
     plugin_urls = []
     for plugin in PLUGIN_REPO:
         if plugin['id'] in plugin_keys:
             plugin_urls.append(plugin['archive'])
+            plugin_keys.remove(plugin['id'])
 
     # Install plugins that were installed to the new env
     print("\nReinstalling plugins...")
@@ -147,6 +148,14 @@ if len(plugin_keys):
             print(" - {}".format(plugin))
         print("Reasons for this could be: \n- Not on the repository (Installed from uploaded archive/url) \n- Incompatible with your system")
         print("It is recommended that you reinstall them when you log back into octoprint")
+
+# Print plugins that were not on the repo
+print("These plugins were not found on the repo, please install them manually")
+for not_found_plugin in plugin_keys:
+    for plugin in plugin_list:
+        if plugin['key'] == not_found_plugin:
+            print("- {}".format(plugin['name']))
+
 
 print("\nStarting Octoprint")
 try:
