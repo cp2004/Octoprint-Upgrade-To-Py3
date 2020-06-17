@@ -20,7 +20,7 @@ else:
             PATH_TO_VENV = path
         else:
             print("Invalid venv path, please try again")
-    print("\nTo do the install, we need the service stop and start commands.")
+    print("\nTo revert the install, we need the service stop and start commands for OctoPrint")
     STOP_COMMAND = input("Stop command: ")
     START_COMMAND = input("Start command: ")
 
