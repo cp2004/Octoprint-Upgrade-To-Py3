@@ -103,7 +103,6 @@ for command in commands:
             check=True,
             capture_output=True
         ).stdout.decode('utf-8')
-        print(output)
     except subprocess.CalledProcessError as e:
         print("ERROR: Failed to install Octoprint")
         print(e)
