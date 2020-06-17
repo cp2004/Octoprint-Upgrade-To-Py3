@@ -80,8 +80,8 @@ else:
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
 commands = [
     STOP_COMMAND.split(),
-    ['mv', PATH_TO_VENV, '{}.bak'.format(PATH_TO_VENV),
-    ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV),  # Only time we want to use system python
+    ['mv', PATH_TO_VENV, '{}.bak'.format(PATH_TO_VENV)],
+    ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV],  # Only time we want to use system python
     [PATH_TO_PYTHON, '-m', 'pip', 'install', '"OctoPrint>=1.4.0"']
 ]
 print("\nMoving venv and installing octoprint...")
@@ -127,7 +127,7 @@ if len(plugin_keys):
     if len(plugin_errors):
         print("Could not install these plugins:")
         for plugin in plugin_errors:
-            print(" - {}".format[])
+            print(" - {}".format(plugin))
 
 print("\nStarting Octoprint")
 print("Pretending to run {}".format(START_COMMAND))
