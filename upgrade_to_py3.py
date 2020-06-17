@@ -56,7 +56,7 @@ if len(plugin_list):
     print("\nPlugins installed:")
     plugin_keys = []
     for plugin in plugin_list:
-        print("- {}".format(plugin['name']) + item['name'])
+        print("- {}".format(plugin['name']) + plugin['name'])
         plugin_keys.append(plugin['key'])
     print("If you think there is something missing from here, please check the list of plugins in Octoprint")
     go = input("Continue? [enter]")
