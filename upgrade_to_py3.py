@@ -49,21 +49,15 @@ else:
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
     go = raw_input("Press [enter] to continue, or ctrl-c to quit")
 
-with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugins:
-    plugin_list = json.load(plugins)
-    plugin_names = []
-    plugin_urls = []
-    plugin_tags = []
-    for item in plugin_list:
-        plugin_names.append(item['name'])
-        plugin_urls.append(item['url'])  # This may not be needed as we will go off the repo
-        plugin_tags.append(item['key'])
-
-    print("\nPlugins installed:")
-    for name in plugin_names:
-        print('- ' + name)
-    print("If you think there is something missing from here, please check the list of plugins in Octoprint")
-    raw_input("Continue? [enter]")
+if plugins_installed:
+    with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugins:
+        plugin_list = json.load(plugins)
+        print("\nPlugins installed:")
+        plugin_names = []
+        for item in plugin_list:
+            print("- " + item['name'])
+        print("If you think there is something missing from here, please check the list of plugins in Octoprint")
+        go = raw_input("Continue? [enter]")
 
 # Move octoprint venv, create new one etc. etc.
 # I'm going to leave this commented out until everything else works
@@ -75,11 +69,14 @@ commands = [
     '{} -m pip install "OctoPrint>=1.4.0"'.format(PATH_TO_PYTHON),
     START_COMMAND,
 ]
-print("\nMoving venv and installing octoprint")
+print("\nMoving venv and installing octoprint...")
 for command in commands:
     print("Pretending to do {}".format(command))
     # output = subprocess.check_output(command, shell=True)
 
+print("\nReinstalling plugins...")
+with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugins:
+    plugin_list = json.load(plugins)
 print(plugin_urls)
 
 print("\nCleaning Up... \nRemoving backup zip")
