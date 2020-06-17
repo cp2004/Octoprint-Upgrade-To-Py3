@@ -142,7 +142,7 @@ if len(plugin_keys):
         print("Could not install these plugins:")
         for plugin in plugin_errors:
             print(" - {}".format(plugin))
-        print("This means they were not on the repository, you probably installed them manually")
+        print("Reasons for this could be: \n- Not on the repository (Installed from uploaded archive/url) \n- Incompatible with your system")
         print("It is recommended that you reinstall them when you log back into octoprint")
 
 print("\nStarting Octoprint")
