@@ -11,8 +11,10 @@ import re
 
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
 print("It requires an internet connection to run")
+print("**This action will disrupt any ongoing print jobs**")
 print("It will install the latest OctoPrint version, as well as the latest version of all plugins")
-print("WORK IN PROGRESS - Does not actually do anything to your install! (Yet)")
+print("No configuration or other files will be overwritten")
+print("If the install fails, download the 'go_back.py' file here: https://github.com/cp2004/Octoprint-Upgrade-To-Py3/go_back.py")
 confirm = input("Press [enter] to continue or ctrl-c to quit")
 
 PATH_TO_VENV = None
@@ -140,6 +142,8 @@ if len(plugin_keys):
         print("Could not install these plugins:")
         for plugin in plugin_errors:
             print(" - {}".format(plugin))
+        print("This means they were not on the repository, you probably installed them manually")
+        print("It is recommended that you reinstall them when you log back into octoprint")
 
 print("\nStarting Octoprint")
 print("Pretending to run {}".format(START_COMMAND))
@@ -158,3 +162,4 @@ print("\nCleaning Up... \nRemoving backup zip")
 os.remove("{}.zip".format(backup_target))
 print("Removing backup folder")
 print("Finished! Octoprint should be restarted and ready to go")
+print("Once you have verified the install works, you can safely remove the folder {}.bak".format(PATH_TO_VENV))
