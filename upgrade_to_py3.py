@@ -33,8 +33,7 @@ backup_target = '/home/{}/.octoprint/data/backup/{}'.format(getpass.getuser(), o
 print("Unzipping...")
 with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
     zip_ref.extractall(backup_target)
-print("Deleting zip...")
-os.remove("{}.zip".format(backup_target))
+
 
 if os.path.isfile(os.path.join(backup_target, 'plugin_list.json')):
     plugins_installed = True
@@ -59,6 +58,9 @@ with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugins:
 
 print(plugin_urls)
 
+print("\nCleaning Up \nDeleting zip...")
+os.remove("{}.zip".format(backup_target)
 print("removing backup folder")
 import shutil
 shutil.rmtree(backup_target)
+print("Finished! Octoprint should be restarted and ready to go")
