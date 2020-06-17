@@ -6,7 +6,7 @@ import getpass
 
 
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
-print("WORK IN PROGRESS")
+print("WORK IN PROGRESS - Does not actually do anything to your install! (Yet)")
 confirm = raw_input("Press [enter] to continue or ctrl-c to quit")
 
 PATH_TO_VENV = None
@@ -71,13 +71,25 @@ commands = [
 ]
 print("\nMoving venv and installing octoprint...")
 for command in commands:
-    print("Pretending to do {}".format(command))
+    print("Pretending to do: {}".format(command))
     # output = subprocess.check_output(command, shell=True)
 
+
+# Install plugins that were installed to the new env
 print("\nReinstalling plugins...")
-with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugins:
-    plugin_list = json.load(plugins)
-print(plugin_urls)
+with open(os.path.join(backup_target, 'plugin_list.json'), 'r') as plugin_file:
+    plugin_list = json.load(plugin_file)
+    for plugin in plugin_list:
+        print("Pretending to install {}".format(plugin['name']))
+        print("{} -m pip install {}".format(PATH_TO_PYTHON, plugin['url']))
+        # output = subprocess.check_output(
+        #     "{} -m pip install {}".format(PATH_TO_PYTHON, plugin['url']),
+        #     shell=True
+        # )
+
+print("\nStarting Octoprint")
+print("Pretending to run {}".format(START_COMMAND))
+# output = subprocess.check_output(START_COMMAND, shell=True)
 
 print("\nCleaning Up... \nRemoving backup zip")
 os.remove("{}.zip".format(backup_target))
