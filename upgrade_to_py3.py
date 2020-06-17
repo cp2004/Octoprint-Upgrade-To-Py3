@@ -107,7 +107,11 @@ for command in commands:
     except subprocess.CalledProcessError as e:
         print("ERROR: Failed to install Octoprint")
         print(e)
-        sys.exit(0)  # Should clean up the zips?
+        # Remove zip
+        print("\nCleaning Up... \nRemoving backup zip")
+        os.remove("{}.zip".format(backup_target))
+        print("Exiting")
+        sys.exit(0)
 
 if len(plugin_keys):
     # Get the plugin repo
