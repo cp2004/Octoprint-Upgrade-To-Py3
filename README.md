@@ -20,3 +20,4 @@ If you are not running OctoPi, you will be prompted to provide:
 
 # Limitations
 The script is unable to restore plugins that are not on the repository. If it cannot find the plugin listed it will list them to you and you should install them manually afterwards.
+Will not tell you if the plugins are not Python 3 compatible, you will have to check in the OctoPrint plugin manager afterwards to find incompatible ones.
