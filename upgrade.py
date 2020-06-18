@@ -76,7 +76,7 @@ with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
         with zip_ref.open("plugin_list.json") as plugins:
             plugin_list = json.load(plugins)
 
-if len(plugin_list):
+if plugin_list:
     print("\nPlugins installed:")
     plugin_keys = []
     for plugin in plugin_list:
@@ -85,6 +85,7 @@ if len(plugin_list):
     print("If you think there is something missing from here, please check the list of plugins in Octoprint")
     go = input("Continue? [enter]")
 else:
+    plugin_keys = []
     print("No plugins found")
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
     go = input("Press [enter] to continue, or ctrl-c to quit")
@@ -115,6 +116,7 @@ for command in commands:
         print("Exiting")
         sys.exit(0)
 print("Octoprint successfully installed")
+
 
 if len(plugin_keys):
     # Get the plugin repo
@@ -149,12 +151,12 @@ if len(plugin_keys):
         print("Reasons for this could be: \n- Not on the repository (Installed from uploaded archive/url) \n- Incompatible with your system")
         print("It is recommended that you reinstall them when you log back into octoprint")
 
-# Print plugins that were not on the repo
-print("\nThese plugins were not found on the repo, please install them manually")
-for not_found_plugin in plugin_keys:
-    for plugin in plugin_list:
-        if plugin['key'] == not_found_plugin:
-            print("- {}".format(plugin['name']))
+    # Print plugins that were not on the repo
+    print("\nThese plugins were not found on the repo, please install them manually")
+    for not_found_plugin in plugin_keys:
+        for plugin in plugin_list:
+            if plugin['key'] == not_found_plugin:
+                print("- {}".format(plugin['name']))
 
 
 print("\nStarting Octoprint")
