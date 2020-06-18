@@ -53,8 +53,8 @@ if os.path.isfile("/e/octopi_version"):
     PATH_TO_VENV = "/home/pi/oprint"
     STOP_COMMAND = "sudo service octoprint stop"
     START_COMMAND = "sudo service octoprint start"
-    OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
     print("Checking version")
+    OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
     if not OPRINT_GT_141:
         CONFBASE = "/home/pi/.octoprint"
 else:
@@ -67,6 +67,7 @@ else:
             PATH_TO_VENV = path
         else:
             print("Invalid venv path, please try again")
+    print("Checking version")
     OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
     if not OPRINT_GT_141:
         while not CONFBASE:
