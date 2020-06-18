@@ -41,7 +41,7 @@ def oprint_version_gt_141(venv_path):
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
 print("It requires an internet connection to run")
 print("**This action will disrupt any ongoing print jobs**")
-print("It will install the latest OctoPrint version, as well as the latest version of all plugins")
+print("It will install the latest OctoPrint release (1.4.0), as well as the latest version of all plugins")
 print("No configuration or other files will be overwritten")
 print("If the install fails, download the 'go_back.py' file here: https://github.com/cp2004/Octoprint-Upgrade-To-Py3/go_back.py")
 confirm = input("Press [enter] to continue or ctrl-c to quit")
