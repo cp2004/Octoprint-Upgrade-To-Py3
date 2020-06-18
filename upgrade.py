@@ -12,6 +12,32 @@ import zipfile
 import requests
 import re
 
+
+def oprint_version_gt_141(venv_path):
+    try:
+        output = subprocess.run(
+            ['{}/bin/python'.format(venv_path), '-m', 'octoprint', '--version'],
+            check=True,
+            capture_output=True
+        ).stdout.rstrip().decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        print("Failed to find OctoPrint install")
+        print("If this is not OctoPi, please check that you have specified the right virtual env")
+        sys.exit(0)
+
+    version_no = re.search(r"(?<=version )(.*)", output).group().split('.')
+    print("Octoprint version: {}.{}.{}".format(version_no[0], version_no[1], version_no[2]))
+    if int(version_no[0]) >= 1 and int(version_no[1]) >= 4:
+        if int(version_no[2]) > 0:
+            return True
+        else:
+            return False
+    else:
+        # This is not strictly needed, but since I am only testing this against Octoprint 1.4.0 or later
+        # I cannot guarantee behaviour of previous versions
+        print("Please upgrade to an OctoPrint version >= 1.4.0 for Python 3 compatibility")
+        sys.exit(0)
+
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
 print("It requires an internet connection to run")
 print("**This action will disrupt any ongoing print jobs**")
@@ -22,12 +48,15 @@ confirm = input("Press [enter] to continue or ctrl-c to quit")
 
 PATH_TO_VENV = None
 CONFBASE = None
-if os.path.isfile("/etc/octopi_version"):
+if os.path.isfile("/e/octopi_version"):
     print("\nDetected OctoPi installation")
     PATH_TO_VENV = "/home/pi/oprint"
     STOP_COMMAND = "sudo service octoprint stop"
     START_COMMAND = "sudo service octoprint start"
-    CONFBASE = "/home/pi/.octoprint"
+    OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
+    print("Checking version")
+    if not OPRINT_GT_141:
+        CONFBASE = "/home/pi/.octoprint"
 else:
     print("\nManual install detected")
     print("Please provide the path to your virtual environment and the config directory of octoprint")
@@ -38,13 +67,15 @@ else:
             PATH_TO_VENV = path
         else:
             print("Invalid venv path, please try again")
-    while not CONFBASE:
-        CONFBASE = input("Config directory: ")
-        if os.path.isfile(os.path.join(CONFBASE, 'config.yaml')):
-            print("Config directory valid")
-        else:
-            print("Invalid path, please try again")
-            CONFBASE = None
+    OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
+    if not OPRINT_GT_141:
+        while not CONFBASE:
+            CONFBASE = input("Config directory: ")
+            if os.path.isfile(os.path.join(CONFBASE, 'config.yaml')):
+                print("Config directory valid")
+            else:
+                print("Invalid path, please try again")
+                CONFBASE = None
     print("\nTo do the install, we need the service stop and start commands.")
     STOP_COMMAND = input("Stop command: ")
     START_COMMAND = input("Start command: ")
@@ -60,9 +91,12 @@ except subprocess.CalledProcessError:
     print("Error getting backup from Octoprint")
     print("If you are on a manual install, please check octoprint is installed in the venv specified")
     sys.exit(0)
-octoprint_zip_name = re.search(r'(?<=Creating backup at )(.*)(?=.zip)', backup_output).group()
 
-backup_target = '{}/data/backup/{}'.format(CONFBASE, octoprint_zip_name)
+if OPRINT_GT_141:
+    backup_target = re.search(r'(?<=Backup located at )(.*)(?=.zip)', backup_output).group()
+else:
+    octoprint_zip_name = re.search(r'(?<=Creating backup at )(.*)(?=.zip)', backup_output).group()
+    backup_target = '{}/data/backup/{}'.format(CONFBASE, octoprint_zip_name)
 
 print("Extracting plugin_list.json from backup")
 with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
