@@ -173,6 +173,5 @@ except subprocess.CalledProcessError as e:
 
 print("\nCleaning Up... \nRemoving backup zip")
 os.remove("{}.zip".format(backup_target))
-print("Removing backup folder")
-print("Finished! Octoprint should be restarted and ready to go")
+print("\nFinished! Octoprint should be restarted and ready to go")
 print("Once you have verified the install works, you can safely remove the folder {}.bak".format(PATH_TO_VENV))
