@@ -48,7 +48,7 @@ confirm = input("Press [enter] to continue or ctrl-c to quit")
 
 PATH_TO_VENV = None
 CONFBASE = None
-if os.path.isfile("/e/octopi_version"):
+if os.path.isfile("/etc/octopi_version"):
     print("\nDetected OctoPi installation")
     PATH_TO_VENV = "/home/pi/oprint"
     STOP_COMMAND = "sudo service octoprint stop"
