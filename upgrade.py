@@ -91,7 +91,6 @@ try:
 except subprocess.CalledProcessError:
     print("Error getting backup from Octoprint")
     print("If you are on a manual install, please check octoprint is installed in the venv specified")
-    print("Output:\n{}".format(backup_output))
     sys.exit(0)
 
 if OPRINT_GT_141:
@@ -136,7 +135,6 @@ commands = [
     [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint']
 ]
 print("\nMoving venv and installing octoprint... (This may take a while - Do not cancel!)")
-saved_output = []
 for command in commands:
     try:
         output = subprocess.run(
@@ -144,14 +142,9 @@ for command in commands:
             check=True,
             capture_output=True
         ).stdout.decode('utf-8')
-        saved_output.append(output)
     except subprocess.CalledProcessError as e:
         print("ERROR: Failed to install Octoprint")
         print(e)
-        print("Output so far:")
-        if len(saved_output):
-            for item in saved_output:
-                print(item)
         # Remove zip
         print("\nCleaning Up... \nRemoving backup zip")
         os.remove("{}.zip".format(backup_target))
@@ -176,16 +169,16 @@ if len(plugin_keys):
     for plugin in plugin_urls:
         print("Installing {}".format(plugin))
         try:
-            plugin_install_output = subprocess.run(
+            backup_output = subprocess.run(
                 [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin],
                 check=True,
                 capture_output=True
-            ).stdout.decode('utf-8')
+            ).stdout.rstrip().decode('utf-8')
         except subprocess.CalledProcessError as e:
             plugin_errors.append(plugin[plugin])
             print("Error installing plugin, maybe it's not compatible?")
             print(e)
-            print("Pip output:\n{}".format(plugin_install_output))
+            sys.exit(0)
     if len(plugin_errors):
         print("Could not install these plugins:")
         for plugin in plugin_errors:
@@ -203,15 +196,15 @@ if len(plugin_keys):
 
 print("\nStarting Octoprint")
 try:
-    starting_octoprint_output = subprocess.run(
+    backup_output = subprocess.run(
         START_COMMAND.split(),
         check=True,
         capture_output=True
-    ).stdout.decode('utf-8')
+    ).stdout.rstrip().decode('utf-8')
 except subprocess.CalledProcessError as e:
     print("Error starting the OctoPrint service")
     print(e)
-    print("Output: {}".format(starting_octoprint_output))
+    sys.exit(0)
 
 print("\nCleaning Up... \nRemoving backup zip")
 os.remove("{}.zip".format(backup_target))
