@@ -20,7 +20,7 @@ def oprint_version_gt_141(venv_path):
             check=True,
             capture_output=True
         ).stdout.rstrip().decode('utf-8')
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         print("Failed to find OctoPrint install")
         print("If this is not OctoPi, please check that you have specified the right virtual env")
         sys.exit(0)
@@ -38,6 +38,8 @@ def oprint_version_gt_141(venv_path):
         print("Please upgrade to an OctoPrint version >= 1.4.0 for Python 3 compatibility")
         sys.exit(0)
 
+
+# Intro text
 print("This script is about to perform an upgrade of your OctoPrint install from python 2 to 3")
 print("It requires an internet connection to run")
 print("**This action will disrupt any ongoing print jobs**")
@@ -46,6 +48,7 @@ print("No configuration or other files will be overwritten")
 print("If the install fails, download the 'go_back.py' file here: https://github.com/cp2004/Octoprint-Upgrade-To-Py3/go_back.py")
 confirm = input("Press [enter] to continue or ctrl-c to quit")
 
+# Detect OctoPi or prompt for paths
 PATH_TO_VENV = None
 CONFBASE = None
 if os.path.isfile("/etc/octopi_version"):
@@ -81,6 +84,7 @@ else:
     STOP_COMMAND = input("Stop command: ")
     START_COMMAND = input("Start command: ")
 
+# Create backup to read the plugin list
 print("\nCreating a backup so we can read the plugin list")
 try:
     backup_output = subprocess.run(
@@ -99,6 +103,7 @@ else:
     octoprint_zip_name = re.search(r'(?<=Creating backup at )(.*)(?=.zip)', backup_output).group()
     backup_target = '{}/data/backup/{}'.format(CONFBASE, octoprint_zip_name)
 
+# Extract plugin_list.json from the backup
 print("Extracting plugin_list.json from backup")
 with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
     try:
@@ -111,6 +116,7 @@ with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
         with zip_ref.open("plugin_list.json") as plugins:
             plugin_list = json.load(plugins)
 
+# Generate a list of installed plugin keys
 if plugin_list:
     print("\nPlugins installed:")
     plugin_keys = []
@@ -124,7 +130,6 @@ else:
     print("No plugins found")
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
     go = input("Press [enter] to continue, or ctrl-c to quit")
-
 
 # Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
@@ -152,7 +157,7 @@ for command in commands:
         sys.exit(0)
 print("Octoprint successfully installed")
 
-
+# Create list of plugin urls, then install one by one
 if len(plugin_keys):
     # Get the plugin repo
     print("\nFetching octoprint's plugin repo")
@@ -169,7 +174,7 @@ if len(plugin_keys):
     for plugin in plugin_urls:
         print("Installing {}".format(plugin))
         try:
-            backup_output = subprocess.run(
+            cmd_output = subprocess.run(
                 [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin],
                 check=True,
                 capture_output=True
@@ -193,10 +198,10 @@ if len(plugin_keys):
             if plugin['key'] == not_found_plugin:
                 print("- {}".format(plugin['name']))
 
-
+# Restart OctoPrint, and clean up
 print("\nStarting Octoprint")
 try:
-    backup_output = subprocess.run(
+    cmd_output = subprocess.run(
         START_COMMAND.split(),
         check=True,
         capture_output=True
