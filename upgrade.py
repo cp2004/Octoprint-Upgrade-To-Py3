@@ -110,7 +110,7 @@ try:
         capture_output=True
     ).stdout.rstrip().decode('utf-8')
 except subprocess.CalledProcessError:
-    print("{}Error getting backup from OctoPrint{}".format(TextColors.RED, TextColors.GREEN))
+    print("{}Error getting backup from OctoPrint{}".format(TextColors.RED, TextColors.RESET))
     print("If you are on a manual install, please check octoprint is installed in the venv specified")
     sys.exit(0)
 
@@ -145,7 +145,7 @@ if plugin_list:
     go = input("Continue? {}[enter]{}".format(TextColors.GREEN, TextColors.RESET))
 else:
     plugin_keys = []
-    print("No plugins found")
+    print("{}No plugins found{}".format(TextColors.YELLOW, TextColors.RESET))
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
     go = input("Press {}[enter]{} to continue, or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
 
@@ -158,7 +158,7 @@ commands = [
     ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV],  # Only time we want to use system python
     [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint']
 ]
-print("\nCreating Python 3 virtual environment and installing OctoPrint... (This may take a while - Do not cancel!)")
+print("\nCreating Python 3 virtual environment and installing OctoPrint... {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
 for command in commands:
     try:
         output = subprocess.run(
@@ -167,7 +167,7 @@ for command in commands:
             capture_output=True
         ).stdout.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        print("{}ERROR: Failed to install Octoprint{}".format(TextColors.RED, TextColors.RESET))
+        print("{}ERROR: Failed to install OctoPrint{}".format(TextColors.RED, TextColors.RESET))
         print(e)
         # Remove zip
         print("\nCleaning Up... \nRemoving backup zip")
