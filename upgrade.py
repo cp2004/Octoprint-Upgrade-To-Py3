@@ -170,7 +170,7 @@ for command in commands:
         print("{}ERROR: Failed to install OctoPrint{}".format(TextColors.RED, TextColors.RESET))
         print(e)
         # Remove zip
-        print("\nCleaning Up... \nRemoving backup zip")
+        print("\nCleaning Up...")
         os.remove("{}.zip".format(backup_target))
         print("Exiting")
         sys.exit(0)
@@ -202,7 +202,6 @@ if len(plugin_keys):
             plugin_errors.append(plugin[plugin])
             print("{}Error installing plugin{}".format(TextColors.RED, TextColors.RESET))
             print(e)
-            sys.exit(0)
     if len(plugin_errors):
         print("{}Could not install these plugins:{}".format(TextColors.YELLOW, TextColors.RESET))
         for plugin in plugin_errors:
@@ -228,10 +227,10 @@ try:
     ).stdout.rstrip().decode('utf-8')
 except subprocess.CalledProcessError as e:
     print("{}Error starting the OctoPrint service{}".format(TextColors.RED, TextColors.RESET))
+    print("You will need to restart it yourself")
     print(e)
-    sys.exit(0)
 
-print("\nCleaning Up... \nRemoving backup zip")
+print("\nCleaning Up...")
 os.remove("{}.zip".format(backup_target))
 print("\n{}Finished! Octoprint should be restarted and ready to go{}".format(TextColors.GREEN, TextColors.RESET))
 print("Once you have verified the install works, you can safely remove the folder {}.bak".format(PATH_TO_VENV))
