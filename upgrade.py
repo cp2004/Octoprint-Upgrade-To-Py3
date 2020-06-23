@@ -206,8 +206,9 @@ for command in commands:
         sys.exit(0)
 LOADING_PRINTING_Q.put('KILL')
 loading_thread.join()
+print("\r\033[2KPython 3 virtual environment created")
 
-print("Installing OctoPrint {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
+print("\nInstalling OctoPrint {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
 process = subprocess.Popen(
     [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint'],
     stdout=subprocess.PIPE
