@@ -206,7 +206,7 @@ for command in commands:
         sys.exit(0)
 LOADING_PRINTING_Q.put('KILL')
 loading_thread.join()
-print("\r\033[2KPython 3 virtual environment created")
+print("\r\033[2K{}Python 3 virtual environment created{}".format(TextColors.GREEN, TextColors.RESET))
 
 print("\nInstalling OctoPrint {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
 process = subprocess.Popen(
@@ -257,7 +257,7 @@ if len(plugin_keys):
     # {key:{url:xxx, name:xxx}, key2:{url:xxx, name:xxx}}
     for plugin in PLUGIN_REPO:
         if plugin['id'] in plugin_keys:
-            plugins_to_install[plugin['id']] = {'url': plugin['archive'], 'name': plugin['title']}
+            plugins_to_install.append = {'id': plugin['id'], 'url': plugin['archive'], 'name': plugin['title']}
             plugin_keys.remove(plugin['id'])
 
     # Install plugins that were previously installed (to the new env)
