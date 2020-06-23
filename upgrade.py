@@ -252,7 +252,7 @@ else:
 if len(plugin_keys):
     print("\nFetching octoprint's plugin repo")
     PLUGIN_REPO = requests.get('https://plugins.octoprint.org/plugins.json').json()
-    plugins_to_install = {}
+    plugins_to_install = []
     # Dictionary structure should be as follows:
     # {key:{url:xxx, name:xxx}, key2:{url:xxx, name:xxx}}
     for plugin in PLUGIN_REPO:
