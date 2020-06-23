@@ -154,7 +154,7 @@ commands = [
     STOP_COMMAND.split(),
     ['mv', PATH_TO_VENV, '{}.bak'.format(PATH_TO_VENV)],
     ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV],  # Only time we want to use system python
-    [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint']
+    [PATH_TO_PYTHON, '-m', 'pip', 'install', 'octoprint']
 ]
 print("\nCreating Python 3 virtual environment and installing OctoPrint... {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
 for command in commands:
