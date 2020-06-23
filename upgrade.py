@@ -174,38 +174,39 @@ for command in commands:
         sys.exit(0)
 print("{}Octoprint successfully installed{}".format(TextColors.GREEN, TextColors.RESET))
 
+
 # Create list of plugin urls, then install one by one
 if len(plugin_keys):
-    # Get the plugin repo
     print("\nFetching octoprint's plugin repo")
     PLUGIN_REPO = requests.get('https://plugins.octoprint.org/plugins.json').json()
-    plugin_urls = []
+    plugins_to_install = {}
+    # Dictionary structure should be as follows:
+    # {key:{url:xxx, name:xxx}, key2:{url:xxx, name:xxx}}
     for plugin in PLUGIN_REPO:
         if plugin['id'] in plugin_keys:
-            plugin_urls.append(plugin['archive'])
+            plugins_to_install[plugin['id']] = {'url': plugin['archive'], 'name': plugin['title']}
             plugin_keys.remove(plugin['id'])
 
-    # Install plugins that were installed to the new env
+    # Install plugins that were previously installed (to the new env)
     print("\nReinstalling plugins...")
     plugin_errors = []
-    for plugin in plugin_urls:
-        print("Installing {}".format(plugin))
+    for plugin in plugins_to_install:
+        print("Installing {}".format(plugin['name']))
         try:
             cmd_output = subprocess.run(
-                [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin],
+                [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin['url']],
                 check=True,
                 capture_output=True
             ).stdout.rstrip().decode('utf-8')
         except subprocess.CalledProcessError as e:
-            plugin_errors.append(plugin[plugin])
-            print("{}Error installing plugin{}".format(TextColors.RED, TextColors.RESET))
+            plugin_errors.append(plugin[plugin['name']])
+            print("{}Error installing {}{}".format(TextColors.RED, plugin['name'], TextColors.RESET))
             print(e)
     if len(plugin_errors):
-        print("{}Could not install these plugins:{}".format(TextColors.YELLOW, TextColors.RESET))
+        print("{}Could not install these plugins:".format(TextColors.YELLOW))
         for plugin in plugin_errors:
-            print(" - {}".format(plugin))
-        print("Reasons for this could be: \n- Not on the repository (Installed from uploaded archive/url) \n- Incompatible with your system")
-        print("It is recommended that you reinstall them when you log back into OctoPrint")
+            print("- {}".format(plugin))
+        print("They were found on the repository but failed to install{}".format(TextColors.RESET))
 
     # Print plugins that were not on the repo
     print("\n{}These plugins were not found on the repo{}".format(TextColors.YELLOW, TextColors.RESET))
@@ -214,6 +215,7 @@ if len(plugin_keys):
         for plugin in plugin_list:
             if plugin['key'] == not_found_plugin:
                 print("- {}, ".format(plugin['name']))
+
 
 # Restart OctoPrint, and clean up
 print("\nStarting OctoPrint")
