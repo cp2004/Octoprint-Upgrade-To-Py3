@@ -54,13 +54,12 @@ def oprint_version_gt_141(venv_path):
 
 
 # Intro text
-print("This script is about to perform an upgrade of your OctoPrint install from Python 2 to Python 3")
-print("{}It requires an internet connection to run".format(TextColors.YELLOW))
-print("{}{}This action will disrupt any ongoing print jobs{}{}".format(
-    TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
-print("It will install the latest OctoPrint release (1.4.0), as well as the latest version of all plugins")
+
+print("OctoPrint Upgrade from Python 2 to Python 3 (v1.1)")
+print("{}This script requires an internet connection {}and {}{}it will disrupt any ongoing print jobs.{}{}".format(
+    TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
+print("It will install the latest OctoPrint (1.4.0) and all plugins.")
 print("No configuration or other files will be overwritten")
-print("If the install fails, download the 'go_back.py' file here: https://github.com/cp2004/Octoprint-Upgrade-To-Py3/go_back.py")
 confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
 
 
@@ -77,7 +76,7 @@ if os.path.isfile("/etc/octopi_version"):
     if not OPRINT_GT_141:
         CONFBASE = "/home/pi/.octoprint"
 else:
-    print("\n{}Detected manual installation{}".format(TextColors.GREEN, TextColors.RED))
+    print("\n{}Detected manual installation{}".format(TextColors.GREEN, TextColors.RESET))
     print("Please provide the path to your virtual environment and the config directory of octoprint")
     while not PATH_TO_VENV:
         path = input("Path: ")
