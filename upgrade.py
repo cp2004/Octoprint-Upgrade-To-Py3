@@ -11,6 +11,9 @@ import subprocess
 import zipfile
 import requests
 import re
+import time
+import queue
+import threading
 
 BASE = '\033['
 
@@ -28,6 +31,14 @@ class TextStyles:
 
 
 def oprint_version_gt_141(venv_path):
+    """Checks the OctoPrint version. Will exit if OctoPrint is not 1.4.0 or higher
+
+    Args:
+        venv_path (str): Path to the venv of OctoPrint
+
+    Returns:
+        bool: True if OctoPrint >= 1.4.1, else False
+    """
     try:
         output = subprocess.run(
             ['{}/bin/python'.format(venv_path), '-m', 'octoprint', '--version'],
@@ -53,8 +64,29 @@ def oprint_version_gt_141(venv_path):
         sys.exit(0)
 
 
-# Intro text
+progress_frames = [
+    '      ',
+    '.     ',
+    '..    ',
+    '...   ',
+    '....  ',
+    '..... ',
+    '......',
+]
+LOADING_PRINTING_Q = queue.Queue()
 
+
+def progress_wheel(base):
+    while LOADING_PRINTING_Q.empty():
+        for frame in progress_frames:
+            print('\r{}{}'.format(base, frame), end='')
+            if not LOADING_PRINTING_Q.empty():
+                LOADING_PRINTING_Q.get()
+                return
+            time.sleep(0.15)
+
+
+# Intro text
 print("OctoPrint Upgrade from Python 2 to Python 3 (v1.1)")
 print("{}This script requires an internet connection {}and {}{}it will disrupt any ongoing print jobs.{}{}".format(
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
@@ -150,29 +182,67 @@ else:
 
 # Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
+print("\nCreating Python 3 virtual environment")
 commands = [
     STOP_COMMAND.split(),
     ['mv', PATH_TO_VENV, '{}.bak'.format(PATH_TO_VENV)],
     ['virtualenv', '--python=/usr/bin/python3', PATH_TO_VENV],  # Only time we want to use system python
-    [PATH_TO_PYTHON, '-m', 'pip', 'install', 'octoprint']
 ]
-print("\nCreating Python 3 virtual environment and installing OctoPrint... {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
 for command in commands:
     try:
         output = subprocess.run(
             command,
             check=True,
             capture_output=True
-        ).stdout.decode('utf-8')
-    except subprocess.CalledProcessError as e:
-        print("{}ERROR: Failed to install OctoPrint{}".format(TextColors.RED, TextColors.RESET))
-        print(e)
+        )
+    except subprocess.CalledProcessError:
+        print("{}ERROR: Failed to move venv{}".format(TextColors.RED, TextColors.RESET))
+        print("Please check you do not have a folder at {}.bak".format(PATH_TO_VENV))
         # Remove zip
         print("\nCleaning Up...")
         os.remove("{}.zip".format(backup_target))
         print("Exiting")
         sys.exit(0)
-print("{}Octoprint successfully installed{}".format(TextColors.GREEN, TextColors.RESET))
+
+print("Installing OctoPrint... {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
+process = subprocess.Popen(
+    [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint'],
+    stdout=subprocess.PIPE
+)
+loading_thread = threading.Thread(target=progress_wheel, args=("Installing OctoPrint",))
+loading_thread.start()
+count = 0
+last_output = None
+while True:
+    output = process.stdout.readline().decode('utf-8')
+    poll = process.poll()
+    if output == '' and poll is not None:
+        LOADING_PRINTING_Q.put('KILL')
+        time.sleep(0.17)
+        print("\r\033[2K", end="")
+        break
+    if output:
+        if 'Collecting' in output:
+            if 'octoprint' in output:
+                if last_output != 'octoprint':
+                    print("Downloading OctoPrint")
+                    last_output = 'octoprint'
+            else:
+                if last_output != 'dependencies':
+                    print("Downloading dependencies")
+                    last_output = 'dependencies'
+        elif 'Installing' in output:
+            if last_output != 'install':
+                print("Installing OctoPrint and its dependencies")
+                last_output = 'install'
+
+if process.poll() != 0:
+    print("{}ERROR: OctoPrint failed to install{}".format(TextColors.RED, TextColors.RESET))
+    print("Here's the output from the command")
+    print(process.stdout.strip().decode('utf-8'))
+    sys.exit(0)
+else:
+    print("{}Octoprint successfully installed{}".format(TextColors.GREEN, TextColors.RESET))
 
 
 # Create list of plugin urls, then install one by one
@@ -192,16 +262,40 @@ if len(plugin_keys):
     plugin_errors = []
     for plugin in plugins_to_install:
         print("Installing {}".format(plugin['name']))
-        try:
-            cmd_output = subprocess.run(
-                [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin['url']],
-                check=True,
-                capture_output=True
-            ).stdout.rstrip().decode('utf-8')
-        except subprocess.CalledProcessError as e:
-            plugin_errors.append(plugin[plugin['name']])
-            print("{}Error installing {}{}".format(TextColors.RED, plugin['name'], TextColors.RESET))
-            print(e)
+        process = subprocess.Popen(
+            [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin['url']],
+            stdout=subprocess.PIPE
+        )
+        loading_thread = threading.Thread(target=progress_wheel, args=("Installing OctoPrint",))
+        loading_thread.start()
+        count = 0
+        last_output = None
+        while True:
+            output = process.stdout.readline().decode('utf-8')
+            poll = process.poll()
+            if output == '' and poll is not None:
+                LOADING_PRINTING_Q.put('KILL')
+                time.sleep(0.17)
+                print("\r\033[2K", end="")
+                break
+            if output:
+                if 'Collecting' in output:
+                    if last_output != 'download':
+                        print("Downloading {}")
+                        last_output = 'download'
+                elif 'Installing' in output:
+                    if last_output != 'install':
+                        print("Installing {}")
+                        last_output = 'install'
+
+        if process.poll() != 0:
+            print("{}ERROR: Plugin {} failed to install{}".format(TextColors.RED, plugin['name'], TextColors.RESET))
+            print("Here's the output from the command")
+            print(process.stdout.strip().decode('utf-8'))
+            plugin_errors.append(plugin['name'])
+        else:
+            print("{}{} successfully installed{}".format(TextColors.GREEN, plugin['name'], TextColors.RESET))
+
     if len(plugin_errors):
         print("{}Could not install these plugins:".format(TextColors.YELLOW))
         for plugin in plugin_errors:
