@@ -182,7 +182,7 @@ else:
 
 # Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
-loading_thread = threading.Thread(target=progress_wheel, args=("Creating Python 3 virtual environment"))
+loading_thread = threading.Thread(target=progress_wheel, args=("Creating Python 3 virtual environment",))
 loading_thread.start()
 commands = [
     STOP_COMMAND.split(),
