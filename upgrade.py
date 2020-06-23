@@ -111,7 +111,6 @@ try:
     ).stdout.rstrip().decode('utf-8')
 except subprocess.CalledProcessError:
     print("{}Error getting backup from OctoPrint{}".format(TextColors.RED, TextColors.RESET))
-    print("If you are on a manual install, please check octoprint is installed in the venv specified")
     sys.exit(0)
 
 if OPRINT_GT_141:
