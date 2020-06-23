@@ -204,7 +204,7 @@ for command in commands:
         print("Exiting")
         sys.exit(0)
 
-print("Installing OctoPrint... {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
+print("Installing OctoPrint {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
 process = subprocess.Popen(
     [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint'],
     stdout=subprocess.PIPE
@@ -225,15 +225,15 @@ while True:
         if 'Collecting' in output:
             if 'octoprint' in output:
                 if last_output != 'octoprint':
-                    print("Downloading OctoPrint")
+                    print("\r\033[2KDownloading OctoPrint")
                     last_output = 'octoprint'
             else:
                 if last_output != 'dependencies':
-                    print("Downloading dependencies")
+                    print("\r\033[2KDownloading dependencies")
                     last_output = 'dependencies'
         elif 'Installing' in output:
             if last_output != 'install':
-                print("Installing OctoPrint and its dependencies")
+                print("\r\033[2KInstalling OctoPrint and its dependencies")
                 last_output = 'install'
 
 if process.poll() != 0:
@@ -281,11 +281,11 @@ if len(plugin_keys):
             if output:
                 if 'Collecting' in output:
                     if last_output != 'download':
-                        print("Downloading {}")
+                        print("\r\033[2KDownloading {}".format(plugin['name']))
                         last_output = 'download'
                 elif 'Installing' in output:
                     if last_output != 'install':
-                        print("Installing {}")
+                        print("\r\033[2KInstalling {}".format(plugin['name']))
                         last_output = 'install'
 
         if process.poll() != 0:
