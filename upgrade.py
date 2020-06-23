@@ -240,8 +240,7 @@ while True:
 
 if process.poll() != 0:
     print("{}ERROR: OctoPrint failed to install{}".format(TextColors.RED, TextColors.RESET))
-    print("Here's the output from the command")
-    print(process.stdout.read())
+    print("Exiting")
     sys.exit(0)
 else:
     print("{}Octoprint successfully installed{}".format(TextColors.GREEN, TextColors.RESET))
@@ -292,8 +291,6 @@ if len(plugin_keys):
 
         if process.poll() != 0:
             print("{}ERROR: Plugin {} failed to install{}".format(TextColors.RED, plugin['name'], TextColors.RESET))
-            print("Here's the output from the command")
-            print(process.stdout.read())
             plugin_errors.append(plugin['name'])
         else:
             print("{}{} successfully installed{}".format(TextColors.GREEN, plugin['name'], TextColors.RESET))
