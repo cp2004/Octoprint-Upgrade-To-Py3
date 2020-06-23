@@ -182,7 +182,7 @@ else:
 
 # Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
-print("\nCreating Python 3 virtual environment")
+loading_thread = threading.Thread(target=progress_wheel, args=("Creating Python 3 virtual environment"))
 commands = [
     STOP_COMMAND.split(),
     ['mv', PATH_TO_VENV, '{}.bak'.format(PATH_TO_VENV)],
@@ -203,6 +203,8 @@ for command in commands:
         os.remove("{}.zip".format(backup_target))
         print("Exiting")
         sys.exit(0)
+LOADING_PRINTING_Q.put('KILL')
+loading_thread.join()
 
 print("Installing OctoPrint {}(This may take a while - Do not cancel!){}".format(TextColors.YELLOW, TextColors.RESET))
 process = subprocess.Popen(
@@ -218,7 +220,7 @@ while True:
     poll = process.poll()
     if output == '' and poll is not None:
         LOADING_PRINTING_Q.put('KILL')
-        time.sleep(0.17)
+        loading_thread.join()
         print("\r\033[2K", end="")
         break
     if output:
@@ -275,7 +277,7 @@ if len(plugin_keys):
             poll = process.poll()
             if output == '' and poll is not None:
                 LOADING_PRINTING_Q.put('KILL')
-                time.sleep(0.17)
+                loading_thread.join()
                 print("\r\033[2K", end="")
                 break
             if output:
