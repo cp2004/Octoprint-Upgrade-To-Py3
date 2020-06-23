@@ -179,7 +179,7 @@ else:
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
     go = input("Press {}[enter]{} to continue, or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
 
-
+print("\n")
 # Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
 loading_thread = threading.Thread(target=progress_wheel, args=("Creating Python 3 virtual environment",))
