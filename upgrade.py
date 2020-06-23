@@ -113,10 +113,10 @@ else:
     while not PATH_TO_VENV:
         path = input("Path: ")
         if os.path.isfile("{}/bin/python".format(path)):
-            print("Venv found")
+            print("{}Venv found{}".format(TextColors.GREEN, TextColors.RESET))
             PATH_TO_VENV = path
         else:
-            print("Invalid venv path, please try again")
+            print("{}Invalid venv path, please try again{}".format(TextColors.RED, TextColors.RESET))
     print("Checking version")
     OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
     if not OPRINT_GT_141:
@@ -196,7 +196,7 @@ for command in commands:
             capture_output=True
         )
     except subprocess.CalledProcessError:
-        print("{}ERROR: Failed to move venv{}".format(TextColors.RED, TextColors.RESET))
+        print("{}ERROR: Failed to create Python 3 venv{}".format(TextColors.RED, TextColors.RESET))
         print("Please check you do not have a folder at {}.bak".format(PATH_TO_VENV))
         # Remove zip
         print("\nCleaning Up...")
@@ -209,7 +209,7 @@ process = subprocess.Popen(
     [PATH_TO_PYTHON, '-m', 'pip', 'install', 'OctoPrint'],
     stdout=subprocess.PIPE
 )
-loading_thread = threading.Thread(target=progress_wheel, args=("Installing OctoPrint",))
+loading_thread = threading.Thread(target=progress_wheel, args=("(Installing OctoPrint)",))
 loading_thread.start()
 count = 0
 last_output = None
@@ -239,7 +239,7 @@ while True:
 if process.poll() != 0:
     print("{}ERROR: OctoPrint failed to install{}".format(TextColors.RED, TextColors.RESET))
     print("Here's the output from the command")
-    print(process.stdout.strip().decode('utf-8'))
+    print(process.stdout.read())
     sys.exit(0)
 else:
     print("{}Octoprint successfully installed{}".format(TextColors.GREEN, TextColors.RESET))
@@ -291,7 +291,7 @@ if len(plugin_keys):
         if process.poll() != 0:
             print("{}ERROR: Plugin {} failed to install{}".format(TextColors.RED, plugin['name'], TextColors.RESET))
             print("Here's the output from the command")
-            print(process.stdout.strip().decode('utf-8'))
+            print(process.stdout.read())
             plugin_errors.append(plugin['name'])
         else:
             print("{}{} successfully installed{}".format(TextColors.GREEN, plugin['name'], TextColors.RESET))
