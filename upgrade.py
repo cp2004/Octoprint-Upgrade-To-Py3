@@ -257,7 +257,7 @@ if len(plugin_keys):
     # {key:{url:xxx, name:xxx}, key2:{url:xxx, name:xxx}}
     for plugin in PLUGIN_REPO:
         if plugin['id'] in plugin_keys:
-            plugins_to_install.append = {'id': plugin['id'], 'url': plugin['archive'], 'name': plugin['title']}
+            plugins_to_install.append({'id': plugin['id'], 'url': plugin['archive'], 'name': plugin['title']})
             plugin_keys.remove(plugin['id'])
 
     # Install plugins that were previously installed (to the new env)
