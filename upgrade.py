@@ -179,6 +179,34 @@ else:
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
     go = input("Press {}[enter]{} to continue, or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
 
+
+# Install python3-dev as it is not installed by default on OctoPi
+loading_thread = threading.Thread(target=progress_wheel, args=("Installing python3-dev", ))
+loading_thread.start()
+
+process = subprocess.Popen(
+    ['sudo', 'apt', 'install', 'python3-dev'],
+    stdout=subprocess.PIPE
+)
+while True:
+    output = process.stdout.readline().decode('utf-8')
+    poll = process.poll()
+    if output == '' and poll is not None:
+        LOADING_PRINTING_Q.put('KILL')
+        loading_thread.join()
+        print("\r\033[2K", end="")
+        break
+    if output:
+        if 'Progress' in output:
+            print(output, end="")
+if process.poll() != 0:
+    print("{}ERROR: python3-dev failed to install{}".format(TextColors.RED, TextColors.RESET))
+    print("Please try manually")
+    print("Exiting")
+else:
+    print("{}Successfully installed python3-dev{}".format(TextColors.GREEN, TextColors.RESET))
+
+
 print("\n")
 # Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
