@@ -215,7 +215,6 @@ process = subprocess.Popen(
 )
 loading_thread = threading.Thread(target=progress_wheel, args=("(Installing OctoPrint)",))
 loading_thread.start()
-count = 0
 last_output = None
 while True:
     output = process.stdout.readline().decode('utf-8')
@@ -271,7 +270,6 @@ if len(plugin_keys):
         )
         loading_thread = threading.Thread(target=progress_wheel, args=("Installing OctoPrint",))
         loading_thread.start()
-        count = 0
         last_output = None
         while True:
             output = process.stdout.readline().decode('utf-8')
