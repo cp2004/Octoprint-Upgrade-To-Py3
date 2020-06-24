@@ -96,6 +96,7 @@ try:
     confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
 except KeyboardInterrupt:
     print("Bye!")
+    sys.exit(0)
 
 
 # Detect OctoPi or prompt for paths
@@ -186,6 +187,7 @@ else:
         print("\nCleaning Up...")
         os.remove("{}.zip".format(backup_target))
         print("Bye!")
+        sys.exit(0)
 
 # Install python3-dev as it is not installed by default on OctoPi
 print("\nRoot access is required to install python3-dev, please fill in the password prompt if shown")
