@@ -185,7 +185,7 @@ print("Installing python3-dev")
 print("Root access is required, please fill in the password prompt if shown")
 
 process = subprocess.Popen(
-    ['sudo', 'apt', 'install', 'python3-dev'],
+    ['sudo', 'apt-get', 'install', 'python3-dev'],
     stdout=subprocess.PIPE
 )
 while True:
