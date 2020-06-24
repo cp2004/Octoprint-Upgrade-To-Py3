@@ -185,7 +185,7 @@ print("Installing python3-dev")
 print("Root access is required, please fill in the password prompt if shown")
 
 process = subprocess.Popen(
-    ['sudo', 'apt-get', 'install', 'python3-dev'],
+    ['sudo', 'apt-get', 'install', 'python3-dev', '-y'],
     stdout=subprocess.PIPE
 )
 while True:
@@ -195,8 +195,9 @@ while True:
         print("\r\033[2K", end="")
         break
     if output:
-        if 'Progress' in output:
-            print(output, end="")
+        print(output)
+        #if 'Progress' in output:
+        #    print(output, end="")
 if process.poll() != 0:
     print("{}ERROR: python3-dev failed to install{}".format(TextColors.RED, TextColors.RESET))
     print("Please try manually")
