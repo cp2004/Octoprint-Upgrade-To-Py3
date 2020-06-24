@@ -181,8 +181,8 @@ else:
 
 
 # Install python3-dev as it is not installed by default on OctoPi
-loading_thread = threading.Thread(target=progress_wheel, args=("Installing python3-dev", ))
-loading_thread.start()
+print("Installing python3-dev")
+print("Root access is required, please fill in the password prompt if shown")
 
 process = subprocess.Popen(
     ['sudo', 'apt', 'install', 'python3-dev'],
@@ -192,8 +192,6 @@ while True:
     output = process.stdout.readline().decode('utf-8')
     poll = process.poll()
     if output == '' and poll is not None:
-        LOADING_PRINTING_Q.put('KILL')
-        loading_thread.join()
         print("\r\033[2K", end="")
         break
     if output:
