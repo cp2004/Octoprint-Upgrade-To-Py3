@@ -205,7 +205,6 @@ else:
     print("{}Successfully installed python3-dev{}".format(TextColors.GREEN, TextColors.RESET))
 
 
-print("\n")
 # Move octoprint venv, create new one, install octoprint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
 loading_thread = threading.Thread(target=progress_wheel, args=("Creating Python 3 virtual environment",))
@@ -289,12 +288,11 @@ if len(plugin_keys):
     print("\nReinstalling plugins...")
     plugin_errors = []
     for plugin in plugins_to_install:
-        print("Installing {}".format(plugin['name']))
         process = subprocess.Popen(
             [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin['url']],
             stdout=subprocess.PIPE
         )
-        loading_thread = threading.Thread(target=progress_wheel, args=("Installing OctoPrint",))
+        loading_thread = threading.Thread(target=progress_wheel, args=("Installing {}".format(plugin['name']),))
         loading_thread.start()
         last_output = None
         while True:
