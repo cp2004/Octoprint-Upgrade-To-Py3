@@ -222,7 +222,7 @@ if process.poll() != 0:
 else:
     print("{}Successfully installed python3-dev{}".format(TextColors.GREEN, TextColors.RESET))
 
-print("\n")
+print("")
 # Move OctoPrint venv, create new one, install OctoPrint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
 loading_thread = threading.Thread(target=progress_wheel, args=("Creating Python 3 virtual environment",))
@@ -240,6 +240,8 @@ for command in commands:
             capture_output=True
         )
     except subprocess.CalledProcessError:
+        LOADING_PRINTING_Q.put("KILL")
+        loading_thread.join()
         print("{}ERROR: Failed to create Python 3 venv{}".format(TextColors.RED, TextColors.RESET))
         print("Please check you do not have a folder at {}.bak".format(PATH_TO_VENV))
         # Remove zip
