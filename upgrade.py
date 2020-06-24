@@ -109,7 +109,7 @@ if os.path.isfile("/etc/octopi_version"):
         CONFBASE = "/home/pi/.octoprint"
 else:
     print("\n{}Detected manual installation{}".format(TextColors.GREEN, TextColors.RESET))
-    print("Please provide the path to your virtual environment and the config directory of octoprint")
+    print("Please provide the path to your virtual environment and the config directory of OctoPrint")
     while not PATH_TO_VENV:
         path = input("Path: ")
         if os.path.isfile("{}/bin/python".format(path)):
@@ -181,8 +181,7 @@ else:
 
 
 # Install python3-dev as it is not installed by default on OctoPi
-print("Installing python3-dev")
-print("Root access is required, please fill in the password prompt if shown")
+print("\nRoot access is required to install python3-dev, please fill in the password prompt if shown")
 print("Updating package list")
 process = subprocess.Popen(
     ['sudo', 'apt-get', 'update'],
@@ -223,8 +222,8 @@ if process.poll() != 0:
 else:
     print("{}Successfully installed python3-dev{}".format(TextColors.GREEN, TextColors.RESET))
 
-
-# Move octoprint venv, create new one, install octoprint
+print("\n")
+# Move OctoPrint venv, create new one, install OctoPrint
 PATH_TO_PYTHON = '{}/bin/python'.format(PATH_TO_VENV)  # Note this is the VIRTUALENV python
 loading_thread = threading.Thread(target=progress_wheel, args=("Creating Python 3 virtual environment",))
 loading_thread.start()
@@ -293,7 +292,7 @@ else:
 
 # Create list of plugin urls, then install one by one
 if len(plugin_keys):
-    print("\nFetching octoprint's plugin repo")
+    print("\nFetching OctoPrint's plugin repo")
     PLUGIN_REPO = requests.get('https://plugins.octoprint.org/plugins.json').json()
     plugins_to_install = []
     # Dictionary structure should be as follows:
