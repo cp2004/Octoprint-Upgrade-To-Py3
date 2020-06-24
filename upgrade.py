@@ -345,12 +345,13 @@ if len(plugin_keys):
         print("They were found on the repository but failed to install{}".format(TextColors.RESET))
 
     # Print plugins that were not on the repo
-    print("\n{}These plugins were not found on the repo{}".format(TextColors.YELLOW, TextColors.RESET))
-    print("Please install them manually, from OctoPrint's Plugin manager")
-    for not_found_plugin in plugin_keys:
-        for plugin in plugin_list:
-            if plugin['key'] == not_found_plugin:
-                print("- {}, ".format(plugin['name']))
+    if len(plugin_keys):
+        print("\n{}These plugins were not found on the repo{}".format(TextColors.YELLOW, TextColors.RESET))
+        print("Please install them manually, from OctoPrint's Plugin manager")
+        for not_found_plugin in plugin_keys:
+            for plugin in plugin_list:
+                if plugin['key'] == not_found_plugin:
+                    print("- {}, ".format(plugin['name']))
 
 
 # Restart OctoPrint, and clean up
