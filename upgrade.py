@@ -95,7 +95,7 @@ print("No configuration or other files will be overwritten")
 try:
     confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
 except KeyboardInterrupt:
-    print("Bye!")
+    print("\nBye!")
     sys.exit(0)
 
 
@@ -176,7 +176,13 @@ if plugin_list:
         print("- {}".format(plugin['name']))
         plugin_keys.append(plugin['key'])
     print("If you think there is something missing from here, please check the list of plugins in Octoprint")
-    go = input("Continue? {}[enter]{}".format(TextColors.GREEN, TextColors.RESET))
+    try:
+        go = input("Continue? {}[enter]{}".format(TextColors.GREEN, TextColors.RESET))
+    except KeyboardInterrupt:
+        print("\nCleaning Up...")
+        os.remove("{}.zip".format(backup_target))
+        print("Bye!")
+        sys.exit(0)
 else:
     plugin_keys = []
     print("{}No plugins found{}".format(TextColors.YELLOW, TextColors.RESET))
