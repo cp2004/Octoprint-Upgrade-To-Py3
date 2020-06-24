@@ -303,9 +303,8 @@ if len(plugin_keys):
         if plugin['id'] in plugin_keys:
             plugins_to_install.append({'id': plugin['id'], 'url': plugin['archive'], 'name': plugin['title']})
             plugin_keys.remove(plugin['id'])
-
+    print("")
     # Install plugins that were previously installed (to the new env)
-    print("\nReinstalling plugins...")
     loading_thread = threading.Thread(target=progress_wheel, args=("Reinstalling plugins",))
     loading_thread.start()
     plugin_errors = []
@@ -339,6 +338,7 @@ if len(plugin_keys):
 
     LOADING_PRINTING_Q.put("KILL")
     loading_thread.join()
+    print("\r\033[2K")
 
     if len(plugin_errors):
         print("{}Could not install these plugins:".format(TextColors.YELLOW))
