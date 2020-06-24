@@ -92,7 +92,10 @@ print("{}This script requires an internet connection {}and {}{}it will disrupt a
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
 print("No configuration or other files will be overwritten")
-confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
+try:
+    confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
+except KeyboardInterrupt:
+    print("Bye!")
 
 
 # Detect OctoPi or prompt for paths
@@ -177,8 +180,12 @@ else:
     plugin_keys = []
     print("{}No plugins found{}".format(TextColors.YELLOW, TextColors.RESET))
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
-    go = input("Press {}[enter]{} to continue, or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
-
+    try:
+        go = input("Press {}[enter]{} to continue, or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
+    except KeyboardInterrupt:
+        print("\nCleaning Up...")
+        os.remove("{}.zip".format(backup_target))
+        print("Bye!")
 
 # Install python3-dev as it is not installed by default on OctoPi
 print("\nRoot access is required to install python3-dev, please fill in the password prompt if shown")
