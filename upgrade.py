@@ -87,7 +87,7 @@ def progress_wheel(base):
 
 
 # Intro text
-print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3)")
+print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.1)")
 print("{}This script requires an internet connection {}and {}{}it will disrupt any ongoing print jobs.{}{}".format(
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
@@ -286,6 +286,8 @@ while True:
 
 if process.poll() != 0:
     print("{}ERROR: OctoPrint failed to install{}".format(TextColors.RED, TextColors.RESET))
+    print("To restore your previous install, download the file at: ")
+    print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
     print("Exiting")
     sys.exit(0)
 else:
@@ -373,3 +375,5 @@ print("\nCleaning Up...")
 os.remove("{}.zip".format(backup_target))
 print("\n{}Finished! Octoprint should be restarted and ready to go{}".format(TextColors.GREEN, TextColors.RESET))
 print("Once you have verified the install works, you can safely remove the folder {}.bak".format(PATH_TO_VENV))
+print("If you want to go back (If it doesn't work) to Python 2 download the file at: ")
+print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
