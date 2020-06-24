@@ -183,7 +183,26 @@ else:
 # Install python3-dev as it is not installed by default on OctoPi
 print("Installing python3-dev")
 print("Root access is required, please fill in the password prompt if shown")
+print("Updating package list")
+process = subprocess.Popen(
+    ['sudo', 'apt-get', 'update'],
+    stdout=subprocess.PIPE
+)
+while True:
+    output = process.stdout.readline().decode('utf-8')
+    poll = process.poll()
+    if output == '' and poll is not None:
+        print("\r\033[2K", end="")
+        break
+    if output:
+        if 'sudo' in output:
+            print(output, end="")
+if process.poll() != 0:
+    print("{}ERROR: failed to update package list{}".format(TextColors.RED, TextColors.RESET))
+    print("Please try manually")
+    print("Exiting")
 
+print("Installing python3-dev")
 process = subprocess.Popen(
     ['sudo', 'apt-get', 'install', 'python3-dev', '-y'],
     stdout=subprocess.PIPE
