@@ -195,9 +195,8 @@ while True:
         print("\r\033[2K", end="")
         break
     if output:
-        print(output)
-        #if 'Progress' in output:
-        #    print(output, end="")
+        if 'sudo' in output:
+            print(output, end="")
 if process.poll() != 0:
     print("{}ERROR: python3-dev failed to install{}".format(TextColors.RED, TextColors.RESET))
     print("Please try manually")
