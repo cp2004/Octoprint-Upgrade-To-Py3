@@ -304,21 +304,19 @@ if len(plugin_keys):
 
     # Install plugins that were previously installed (to the new env)
     print("\nReinstalling plugins...")
+    loading_thread = threading.Thread(target=progress_wheel, args=("Reinstalling plugins",))
+    loading_thread.start()
     plugin_errors = []
     for plugin in plugins_to_install:
         process = subprocess.Popen(
             [PATH_TO_PYTHON, '-m', 'pip', 'install', plugin['url']],
             stdout=subprocess.PIPE
         )
-        loading_thread = threading.Thread(target=progress_wheel, args=("Installing {}".format(plugin['name']),))
-        loading_thread.start()
         last_output = None
         while True:
             output = process.stdout.readline().decode('utf-8')
             poll = process.poll()
             if output == '' and poll is not None:
-                LOADING_PRINTING_Q.put('KILL')
-                loading_thread.join()
                 print("\r\033[2K", end="")
                 break
             if output:
@@ -336,6 +334,9 @@ if len(plugin_keys):
             plugin_errors.append(plugin['name'])
         else:
             print("{}{} successfully installed{}".format(TextColors.GREEN, plugin['name'], TextColors.RESET))
+
+    LOADING_PRINTING_Q.put("KILL")
+    loading_thread.join()
 
     if len(plugin_errors):
         print("{}Could not install these plugins:".format(TextColors.YELLOW))
