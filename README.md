@@ -5,7 +5,7 @@
  Only runs on linux
 
 ---
-# Usage
+## Usage
 A one time script to upgrade your OctoPrint installation from Python 2 to Python 3
 
 It is recommended that you use the plugin [Python 3 check](https://plugins.octoprint.org/plugins/Python3PluginCompatibilityCheck/) to check that your plugins are compatible before using this script as any that are not Python 3 compatible will not work!
@@ -15,17 +15,17 @@ curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/up
 python3 upgrade.py
 ```
 If you are not running OctoPi, you will be prompted to provide:
-- The path to the venv (`/home/pi/oprint` on OctoPi)
-- Configuration directory (`/home/pi/.octoprint`)
-- Command to stop (`sudo service octoprint stop`)
-- Command to start (`sudo service octoprint start`)
+  - The path to the venv (`/home/pi/oprint` on OctoPi)
+  - Configuration directory (`/home/pi/.octoprint`)
+  - Command to stop (`sudo service octoprint stop`)
+  - Command to start (`sudo service octoprint start`)
 
-# Limitations
+## Limitations
 The script is unable to restore plugins that are not on the repository. If it cannot find the plugin listed it will list them to you and you should install them manually afterwards.
 
 Will not tell you if the plugins are not Python 3 compatible, you will have to check in the OctoPrint plugin manager afterwards to find incompatible ones.
 
-# Contributing
+## Contributing
 Please open an issue if you find something wrong, or have a feature request.
 If you would like to make a PR, please do so against the `devel` branch as `master` is downloaded by users and I don't want changes that accidentally break something!
 If your are making a PR for a feature, please open an issue first as there may be other plans in the pipeline that would be disruptive to development
