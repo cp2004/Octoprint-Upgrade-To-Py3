@@ -21,6 +21,12 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install virtualenv
+          python3 -m pip install --upgrade pip
+          python3 -m pip install virtualenv
       - name: Create Python 2 virtualenv
         run: |
           python -m virtualenv venv2
@@ -28,7 +34,6 @@ jobs:
         run: |
           source venv2/bin/activate
           python --version
-          python -m pip install --upgrade pip
           python -m pip install octoprint
       - name: Lint script with flake8
         run: |
