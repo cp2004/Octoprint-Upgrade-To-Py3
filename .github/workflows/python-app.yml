@@ -32,9 +32,8 @@ jobs:
           python -m virtualenv venv2
       - name: Install OctoPrint on Python 2
         run: |
-          source venv2/bin/activate
-          python --version
-          python -m pip install octoprint
+          ./venv2/bin/python --version
+          ./venv2/bin/python -m pip install octoprint
       - name: Lint script with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
@@ -46,6 +45,5 @@ jobs:
           python3 -m virtualenv venv3
       - name: Migrate to Python 3
         run: |
-          source venv3/bin/activate
-          python --version
+          ./venv2/bin/python --version
           ls
