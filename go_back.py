@@ -63,7 +63,7 @@ COMMANDS = [
 ]
 for command in COMMANDS:
     process = subprocess.Popen(
-        ['sudo', 'apt-get', 'update'],
+        command,
         stdout=subprocess.PIPE
     )
     while True:
