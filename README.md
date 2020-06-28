@@ -20,6 +20,15 @@ If you are not running OctoPi, you will be prompted to provide:
   - Command to stop (`sudo service octoprint stop`)
   - Command to start (`sudo service octoprint start`)
 
+You may also be asked to provide the `sudo` password so the script can install `python3-dev`, a package required to install some plugins. (If your machine is not running passwordless sudo)
+
+## Returning to the old install
+The script saves your old environment at path/to/env.bak and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible
+```
+curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py --output go_back.py
+python3 upgrade.py
+```
+
 ## Limitations
 The script is unable to restore plugins that are not on the repository. If it cannot find the plugin listed it will list them to you and you should install them manually afterwards.
 
