@@ -31,7 +31,8 @@ class TextStyles:
 
 
 def oprint_version_gt_141(venv_path):
-    """Checks the OctoPrint version. Will exit if OctoPrint is not 1.4.0 or higher
+    """
+    Checks the OctoPrint version. Will exit if OctoPrint is not 1.4.0 or higher
 
     Args:
         venv_path (str): Path to the venv of OctoPrint
@@ -77,6 +78,13 @@ LOADING_PRINTING_Q = queue.Queue()
 
 
 def progress_wheel(base):
+    """
+    Adds an animated progress indicator. MUST BE RUN AS A THREAD as it will block.
+    Add anything to LOADING_PRINTING_Q to stop it.
+
+    Args:
+        base (str): String to be used as the base of the indicator (Example: "Loading")
+    """
     while LOADING_PRINTING_Q.empty():
         for frame in progress_frames:
             print('\r{}{}'.format(base, frame), end='')
