@@ -165,10 +165,9 @@ while True:
     output = backup_output.stdout.readline().decode('utf-8')
     poll = backup_output.poll()
     if output == '' and poll is not None:
-        print("\r\033[2K", end="")
         break
     if output:
-        if 'creating' in output:
+        if 'Creating' in output:
             backup_path_line = output
         print(output)
 if backup_output.poll() != 0:
