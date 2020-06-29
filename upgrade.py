@@ -95,7 +95,7 @@ def progress_wheel(base):
 
 
 # Intro text
-print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.2)")
+print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.3) (FORUM TEST!!)")
 print("{}This script requires an internet connection {}and {}{}it will disrupt any ongoing print jobs.{}{}".format(
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
@@ -146,14 +146,39 @@ else:
 
 # Create backup to read the plugin list
 print("\nCreating a backup so we can read the plugin list")
+#try:
+#    backup_output = subprocess.run(
+#        ["{}/bin/python".format(PATH_TO_VENV), "-m", "octoprint", "plugins", "backup:backup", "--exclude", "timelapse", "--exclude", "uploads"],
+#        check=True,
+#        capture_output=True
+#    ).stdout.rstrip().decode('utf-8')
+#except subprocess.CalledProcessError:
+#    print("{}Error getting backup from OctoPrint{}".format(TextColors.RED, TextColors.RESET))
+#    sys.exit(0)
+
+backup_output = subprocess.Popen(
+    ["{}/bin/python".format(PATH_TO_VENV), "-m", "octoprint", "plugins", "backup:backup", "--exclude", "timelapse", "--exclude", "uploads"],
+    stdout=subprocess.PIPE
+)
+while True:
+    output = backup_output.stdout.readline().decode('utf-8')
+    poll = backup_output.poll()
+    if output == '' and poll is not None:
+        print("\r\033[2K", end="")
+        break
+    if output:
+        print(output)
+if backup_output.poll() != 0:
+    print("{}ERROR: failed to create backup{}".format(TextColors.RED, TextColors.RESET))
+    print("Please report back the output")
+    print("Exiting")
+    sys.exit(0)
+
 try:
-    backup_output = subprocess.run(
-        ["{}/bin/python".format(PATH_TO_VENV), "-m", "octoprint", "plugins", "backup:backup", "--exclude", "timelapse", "--exclude", "uploads"],
-        check=True,
-        capture_output=True
-    ).stdout.rstrip().decode('utf-8')
-except subprocess.CalledProcessError:
-    print("{}Error getting backup from OctoPrint{}".format(TextColors.RED, TextColors.RESET))
+    print("Did the backup work?")
+    go = input("{}[enter]{} to continue or {}ctrl-c to quit{}".format(TextColors.GREEN, TextColors.RESET, TextColors.RED, TextColors.RESET))
+except KeyboardInterrupt:
+    print("Bye!")
     sys.exit(0)
 
 if OPRINT_GT_141:
