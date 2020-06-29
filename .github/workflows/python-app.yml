@@ -24,25 +24,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install virtualenv flake8
           python3 -m pip install --upgrade pip
-          python3 -m pip install virtualenv flake8
       - name: Create Python 2 virtualenv
         run: |
-          python -m virtualenv venv2
+          python -m virtualenv --python=/usr/bin/python2 venv2
       - name: Install OctoPrint on Python 2
         run: |
           ./venv2/bin/python --version
           ./venv2/bin/python -m pip install octoprint
-      - name: Lint script with flake8
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Create Python 3 environment
         run: |
-          python3 -m virtualenv venv3
+          python3 -m virtualenv --python=/usr/bin/python3 venv3
       - name: Migrate to Python 3
         run: |
           ./venv2/bin/python --version
