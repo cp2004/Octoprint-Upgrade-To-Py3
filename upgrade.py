@@ -95,7 +95,7 @@ def progress_wheel(base):
 
 
 # Intro text
-print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.3) (FORUM TEST!!)")
+print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.4) (FORUM TEST!!)")
 print("{}This script requires an internet connection {}and {}{}it will disrupt any ongoing print jobs.{}{}".format(
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
@@ -160,6 +160,7 @@ backup_output = subprocess.Popen(
     ["{}/bin/python".format(PATH_TO_VENV), "-m", "octoprint", "plugins", "backup:backup", "--exclude", "timelapse", "--exclude", "uploads"],
     stdout=subprocess.PIPE
 )
+backup_path_line = None
 while True:
     output = backup_output.stdout.readline().decode('utf-8')
     poll = backup_output.poll()
@@ -167,11 +168,18 @@ while True:
         print("\r\033[2K", end="")
         break
     if output:
+        if 'creating' in output:
+            backup_path_line = output
         print(output)
 if backup_output.poll() != 0:
     print("{}ERROR: failed to create backup{}".format(TextColors.RED, TextColors.RESET))
     print("Please report back the output")
     print("Exiting")
+    sys.exit(0)
+
+if not backup_output:
+    print("Line with backup name in not found, hmmmm")
+    print("Exiting...")
     sys.exit(0)
 
 try:
@@ -182,11 +190,12 @@ except KeyboardInterrupt:
     sys.exit(0)
 
 if OPRINT_GT_141:
-    backup_target = re.search(r'(?<=Backup located at )(.*)(?=.zip)', backup_output).group()
+    backup_target = re.search(r'(?<=Backup located at )(.*)(?=.zip)', backup_path_line).group()
 else:
-    octoprint_zip_name = re.search(r'(?<=Creating backup at )(.*)(?=.zip)', backup_output).group()
+    octoprint_zip_name = re.search(r'(?<=Creating backup at )(.*)(?=.zip)', backup_path_line).group()
     backup_target = '{}/data/backup/{}'.format(CONFBASE, octoprint_zip_name)
 
+print("Backup at {}.zip".format(backup_target))
 
 # Extract plugin_list.json from the backup
 with zipfile.ZipFile('{}.zip'.format(backup_target), 'r') as zip_ref:
