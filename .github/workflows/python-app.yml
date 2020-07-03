@@ -22,8 +22,8 @@ jobs:
           python-version: 3.7
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python3 -m pip install --upgrade pip
+          python -m pip install --upgrade pip virtualenv
+          python3 -m pip install --upgrade pip virtualenv
       - name: Create Python 2 virtualenv
         run: |
           python -m virtualenv --python=/usr/bin/python2 venv2
