@@ -106,8 +106,8 @@ try:
         BASEDIR = sys.argv[2]
         PATH_TO_VENV = sys.argv[3]
         CONFBASE = sys.argv[4]
-        START_COMMAND = sys.argv[5]
-        STOP_COMMAND = sys.argv[6]
+        START_COMMAND = "echo 'fake stop'"
+        STOP_COMMAND = "echo 'fake start'"
 except IndexError:
     TESTING = False
 
