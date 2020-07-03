@@ -94,9 +94,10 @@ def progress_wheel(base):
             time.sleep(0.15)
 
 
+TESTING = False
 try:
     if sys.argv[1] == 'TEST':
-        print("{}TESTING MODE{}".format(TextColors.YELLOW, TextColors.RESET))
+        print("{}*******TESTING MODE*******{}".format(TextColors.YELLOW, TextColors.RESET))
         # Don't want any inputs if we are running a test, to make life simpler
         # Specifying path to venv & config dir from command line
         # USAGE
@@ -117,6 +118,7 @@ print("{}This script requires an internet connection {}and {}{}it will disrupt a
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
 print("No configuration or other files will be overwritten")
+print("Testing: {}".format(TESTING))
 if not TESTING:
     try:
         confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
