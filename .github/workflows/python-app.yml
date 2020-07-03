@@ -34,5 +34,4 @@ jobs:
       - name: Migrate to Python 3
         run: |
           python3 --version
-          cd /home/runner/work/Octoprint-Upgrade-To-Py3
-          ls
+          python3 upgrade.py TEST ./venv2 ./octoprint-test "echo 'fake stop'" "echo 'fake start'"
