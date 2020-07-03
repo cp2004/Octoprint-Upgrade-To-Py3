@@ -112,7 +112,7 @@ except IndexError:
 
 
 # Intro text
-print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.4) (FORUM TEST!! - Should work)")
+print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.5)")
 print("{}This script requires an internet connection {}and {}{}it will disrupt any ongoing print jobs.{}{}".format(
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
