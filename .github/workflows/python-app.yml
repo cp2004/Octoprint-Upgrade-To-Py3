@@ -1,6 +1,6 @@
 # This workflow will install Python 2 & 3, install OctoPrint on Python 2 and then attempt to move it to Python 3 successfully.
 
-name: Test migration
+name: Test migration plugin-free
 
 on:
   push:
@@ -9,66 +9,29 @@ on:
     branches: [ github-actions=testing ]
 
 jobs:
-  migrate_plugin_free:
+  build:
 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: 👷 Set up Python 2
-        uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2
         with:
           python-version: 2.7
-      - name: 👷 Set up Python 3
-        uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2
         with:
           python-version: 3.7
-      - name: ➕ Install dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip virtualenv
           python3 -m pip install --upgrade pip virtualenv requests
-      - name: 🏗 Create Python 2 virtualenv
+      - name: Create Python 2 virtualenv
         run: |
           python -m virtualenv --python=/usr/bin/python2 venv2
-      - name: 🏗 Install OctoPrint on Python 2
+      - name: Install OctoPrint on Python 2
         run: |
           ./venv2/bin/python --version
           ./venv2/bin/python -m pip install octoprint
-      - name: 🚀 Migrate to Python 3
-        run: |
-          python3 --version
-          python3 upgrade.py TEST ./venv2 ./octoprint-test
-
-  migrate_with_plugins:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: 👷 Set up Python 2
-        uses: actions/setup-python@v2
-        with:
-          python-version: 2.7
-      - name: 👷 Set up Python 3
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-      - name: ➕ Install dependencies
-        run: |
-          python -m pip install --upgrade pip virtualenv
-          python3 -m pip install --upgrade pip virtualenv requests
-      - name: 🏗 Create Python 2 virtualenv
-        run: |
-          python -m virtualenv --python=/usr/bin/python2 venv2
-      - name: 🏗 Install OctoPrint on Python 2
-        run: |
-          ./venv2/bin/python --version
-          ./venv2/bin/python -m pip install octoprint
-      - name: 🏗 Install some plugins
-        run: |
-          ./venv2/bin/python -m pip install "https://github.com/FormerLurker/Octolapse/archive/v0.4.0.zip"
-          ./venv2/bin/python -m pip install "https://github.com/jneilliii/OctoPrint-BedLevelingWizard/archive/master.zip"
-          ./venv2/bin/python -m pip install "https://github.com/jneilliii/OctoPrint-AutoTerminalInput/archive/master.zip"
-          ./venv2/bin/python -m pip install "https://github.com/jneilliii/OctoPrint-PrusaSlicerThumbnails/archive/master.zip"
-          ./venv2/bin/python -m pip install "https://github.com/OllisGit/OctoPrint-DisplayLayerProgress/releases/latest/download/master.zip"
-      - name: 🚀 Migrate to Python 3
+      - name: Migrate to Python 3
         run: |
           python3 --version
           python3 upgrade.py TEST ./venv2 ./octoprint-test
