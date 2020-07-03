@@ -161,6 +161,8 @@ if not TESTING:
         print("\nTo do the install, we need the service stop and start commands.")
         STOP_COMMAND = input("Stop command: ")
         START_COMMAND = input("Start command: ")
+else:
+    OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
 
 
 # Create backup to read the plugin list
