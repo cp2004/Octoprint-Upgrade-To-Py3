@@ -4,9 +4,9 @@ name: Test migration
 
 on:
   push:
-    branches: [ github-actions=testing ]
+    branches: [ master, devel ]
   pull_request:
-    branches: [ github-actions=testing ]
+    branches: [ master, devel ]
 
 jobs:
   migrate_plugin_free:
