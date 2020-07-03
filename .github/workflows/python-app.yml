@@ -34,4 +34,5 @@ jobs:
       - name: Migrate to Python 3
         run: |
           python3 --version
-          pwd
+          cd /home/runner
+          ls
