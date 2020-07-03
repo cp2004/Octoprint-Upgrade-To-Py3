@@ -34,4 +34,4 @@ jobs:
       - name: Migrate to Python 3
         run: |
           python3 --version
-          python3 upgrade.py
+          pwd
