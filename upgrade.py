@@ -103,9 +103,8 @@ try:
         # USAGE
         # python3 upgrade.py TEST <path_to_venv> <config_base> <start_commmand> <stop_command>
         TESTING = True
-        BASEDIR = sys.argv[2]
-        PATH_TO_VENV = sys.argv[3]
-        CONFBASE = sys.argv[4]
+        PATH_TO_VENV = sys.argv[2]
+        CONFBASE = sys.argv[3]
         START_COMMAND = "echo 'fake stop'"
         STOP_COMMAND = "echo 'fake start'"
 except IndexError:
