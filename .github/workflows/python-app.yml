@@ -36,5 +36,5 @@ jobs:
           python3 -m virtualenv --python=/usr/bin/python3 venv3
       - name: Migrate to Python 3
         run: |
-          ./venv2/bin/python --version
-          ls
+          ./venv3/bin/python --version
+          ./venv3/bin/python upgrade.py
