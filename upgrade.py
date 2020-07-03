@@ -93,16 +93,20 @@ def progress_wheel(base):
                 return
             time.sleep(0.15)
 
+
 try:
     if sys.argv[1] == 'TEST':
         print("{}TESTING MODE{}".format(TextColors.YELLOW, TextColors.RESET))
         # Don't want any inputs if we are running a test, to make life simpler
         # Specifying path to venv & config dir from command line
+        # USAGE
+        # python3 upgrade.py TEST <path_to_venv> <config_base> <start_commmand> <stop_command>
         TESTING = True
-        PATH_TO_VENV = sys.argv[2]
-        CONFBASE = sys.argv[3]
-        START_COMMAND = sys.argv[4]
-        STOP_COMMAND = sys.argv[5]
+        BASEDIR = sys.argv[2]
+        PATH_TO_VENV = sys.argv[3]
+        CONFBASE = sys.argv[4]
+        START_COMMAND = sys.argv[5]
+        STOP_COMMAND = sys.argv[6]
 except IndexError:
     TESTING = False
 
@@ -170,8 +174,16 @@ print("\nCreating a backup so we can read the plugin list")
 #    print("{}Error getting backup from OctoPrint{}".format(TextColors.RED, TextColors.RESET))
 #    sys.exit(0)
 
+
+if TESTING:
+    backup_command = ["{}/bin/python".format(PATH_TO_VENV), "-m", "octoprint", "--basedir", CONFBASE, "plugins", "backup:backup", "--exclude",
+                      "timelapse", "--exclude", "uploads"]
+else:
+    backup_command = ["{}/bin/python".format(PATH_TO_VENV), "-m", "octoprint", "plugins", "backup:backup", "--exclude",
+                      "timelapse", "--exclude", "uploads"]
+
 backup_output = subprocess.Popen(
-    ["{}/bin/python".format(PATH_TO_VENV), "-m", "octoprint", "plugins", "backup:backup", "--exclude", "timelapse", "--exclude", "uploads"],
+    backup_command,
     stdout=subprocess.PIPE
 )
 backup_path_line = None
