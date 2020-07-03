@@ -93,6 +93,19 @@ def progress_wheel(base):
                 return
             time.sleep(0.15)
 
+try:
+    if sys.argv[1] == 'TEST':
+        print("{}TESTING MODE{}".format(TextColors.YELLOW, TextColors.RESET))
+        # Don't want any inputs if we are running a test, to make life simpler
+        # Specifying path to venv & config dir from command line
+        TESTING = True
+        PATH_TO_VENV = sys.argv[2]
+        CONFBASE = sys.argv[3]
+        START_COMMAND = sys.argv[4]
+        STOP_COMMAND = sys.argv[5]
+except IndexError:
+    TESTING = False
+
 
 # Intro text
 print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.4) (FORUM TEST!! - Should work)")
@@ -100,48 +113,49 @@ print("{}This script requires an internet connection {}and {}{}it will disrupt a
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
 print("No configuration or other files will be overwritten")
-try:
-    confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
-except KeyboardInterrupt:
-    print("\nBye!")
-    sys.exit(0)
+if not TESTING:
+    try:
+        confirm = input("Press {}[enter]{} to continue or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
+    except KeyboardInterrupt:
+        print("\nBye!")
+        sys.exit(0)
 
-
-# Detect OctoPi or prompt for paths
-PATH_TO_VENV = None
-CONFBASE = None
-if os.path.isfile("/etc/octopi_version"):
-    print("\n{}Detected OctoPi installation{}".format(TextColors.GREEN, TextColors.RESET))
-    PATH_TO_VENV = "/home/pi/oprint"
-    STOP_COMMAND = "sudo service octoprint stop"
-    START_COMMAND = "sudo service octoprint start"
-    print("Checking version")
-    OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
-    if not OPRINT_GT_141:
-        CONFBASE = "/home/pi/.octoprint"
-else:
-    print("\n{}Detected manual installation{}".format(TextColors.GREEN, TextColors.RESET))
-    print("Please provide the path to your virtual environment and the config directory of OctoPrint")
-    while not PATH_TO_VENV:
-        path = input("Path: ")
-        if os.path.isfile("{}/bin/python".format(path)):
-            print("{}Venv found{}".format(TextColors.GREEN, TextColors.RESET))
-            PATH_TO_VENV = path
-        else:
-            print("{}Invalid venv path, please try again{}".format(TextColors.RED, TextColors.RESET))
-    print("Checking version")
-    OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
-    if not OPRINT_GT_141:
-        while not CONFBASE:
-            CONFBASE = input("Config directory: ")
-            if os.path.isfile(os.path.join(CONFBASE, 'config.yaml')):
-                print("{}Config directory valid{}".format(TextColors.GREEN, TextColors.RESET))
+if not TESTING:
+    # Detect OctoPi or prompt for paths
+    PATH_TO_VENV = None
+    CONFBASE = None
+    if os.path.isfile("/etc/octopi_version"):
+        print("\n{}Detected OctoPi installation{}".format(TextColors.GREEN, TextColors.RESET))
+        PATH_TO_VENV = "/home/pi/oprint"
+        STOP_COMMAND = "sudo service octoprint stop"
+        START_COMMAND = "sudo service octoprint start"
+        print("Checking version")
+        OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
+        if not OPRINT_GT_141:
+            CONFBASE = "/home/pi/.octoprint"
+    else:
+        print("\n{}Detected manual installation{}".format(TextColors.GREEN, TextColors.RESET))
+        print("Please provide the path to your virtual environment and the config directory of OctoPrint")
+        while not PATH_TO_VENV:
+            path = input("Path: ")
+            if os.path.isfile("{}/bin/python".format(path)):
+                print("{}Venv found{}".format(TextColors.GREEN, TextColors.RESET))
+                PATH_TO_VENV = path
             else:
-                print("{}Invalid path, please try again{}".format(TextColors.GREEN, TextColors.RESET))
-                CONFBASE = None
-    print("\nTo do the install, we need the service stop and start commands.")
-    STOP_COMMAND = input("Stop command: ")
-    START_COMMAND = input("Start command: ")
+                print("{}Invalid venv path, please try again{}".format(TextColors.RED, TextColors.RESET))
+        print("Checking version")
+        OPRINT_GT_141 = oprint_version_gt_141(PATH_TO_VENV)
+        if not OPRINT_GT_141:
+            while not CONFBASE:
+                CONFBASE = input("Config directory: ")
+                if os.path.isfile(os.path.join(CONFBASE, 'config.yaml')):
+                    print("{}Config directory valid{}".format(TextColors.GREEN, TextColors.RESET))
+                else:
+                    print("{}Invalid path, please try again{}".format(TextColors.GREEN, TextColors.RESET))
+                    CONFBASE = None
+        print("\nTo do the install, we need the service stop and start commands.")
+        STOP_COMMAND = input("Stop command: ")
+        START_COMMAND = input("Start command: ")
 
 
 # Create backup to read the plugin list
@@ -181,12 +195,6 @@ if not backup_output:
     print("Exiting...")
     sys.exit(0)
 
-try:
-    print("Did the backup work?")
-    go = input("{}[enter]{} to continue or {}ctrl-c to quit{}".format(TextColors.GREEN, TextColors.RESET, TextColors.RED, TextColors.RESET))
-except KeyboardInterrupt:
-    print("Bye!")
-    sys.exit(0)
 
 if OPRINT_GT_141:
     backup_target = re.search(r'(?<=Backup located at )(.*)(?=.zip)', backup_path_line).group()
@@ -217,24 +225,30 @@ if plugin_list:
         print("- {}".format(plugin['name']))
         plugin_keys.append(plugin['key'])
     print("If you think there is something missing from here, please check the list of plugins in Octoprint")
-    try:
-        go = input("Continue? {}[enter]{}".format(TextColors.GREEN, TextColors.RESET))
-    except KeyboardInterrupt:
-        print("\nCleaning Up...")
-        os.remove("{}.zip".format(backup_target))
-        print("Bye!")
-        sys.exit(0)
+    if not TESTING:
+        try:
+            go = input("Continue? {}[enter]{}".format(TextColors.GREEN, TextColors.RESET))
+        except KeyboardInterrupt:
+            print("\nCleaning Up...")
+            os.remove("{}.zip".format(backup_target))
+            print("Bye!")
+            sys.exit(0)
+    else:
+        print("Continuing")
 else:
     plugin_keys = []
     print("{}No plugins found{}".format(TextColors.YELLOW, TextColors.RESET))
     print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
-    try:
-        go = input("Press {}[enter]{} to continue, or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
-    except KeyboardInterrupt:
-        print("\nCleaning Up...")
-        os.remove("{}.zip".format(backup_target))
-        print("Bye!")
-        sys.exit(0)
+    if not TESTING:
+        try:
+            go = input("Press {}[enter]{} to continue, or ctrl-c to quit".format(TextColors.GREEN, TextColors.RESET))
+        except KeyboardInterrupt:
+            print("\nCleaning Up...")
+            os.remove("{}.zip".format(backup_target))
+            print("Bye!")
+            sys.exit(0)
+    else:
+        print("Continuing")
 
 # Install python3-dev as it is not installed by default on OctoPi
 print("\nRoot access is required to install python3-dev, please fill in the password prompt if shown")
