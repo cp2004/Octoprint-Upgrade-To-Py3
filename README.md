@@ -1,7 +1,8 @@
 # Octoprint Upgrade To Python 3
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/110c98d760aa4e088fdf5a69adcbc4a9)](https://www.codacy.com/manual/cp2004/Octoprint-Upgrade-To-Py3?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cp2004/Octoprint-Upgrade-To-Py3&amp;utm_campaign=Badge_Grade)
 
- NOTE: This is not a plugin! A script to move an existing octoprint install from python 2 to python 3
+ NOTE: This is not a plugin! A script to move an existing octoprint install from Python 2 to Python 3
+ 
  Only runs on linux
 
 ---
