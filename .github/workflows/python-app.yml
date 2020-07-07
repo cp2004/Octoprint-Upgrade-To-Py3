@@ -1,6 +1,6 @@
 # This workflow will install Python 2 & 3, install OctoPrint on Python 2 and then attempt to move it to Python 3 successfully.
 
-name: Test migration
+name: Test OctoPrint Migration
 
 on:
   push:
