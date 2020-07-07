@@ -198,7 +198,7 @@ while True:
     if output:
         if 'Creating' in output:
             backup_path_line = output
-        print(output)
+            print(output)
 if backup_output.poll() != 0:
     print("{}ERROR: failed to create backup{}".format(TextColors.RED, TextColors.RESET))
     print("Please report back the output")
