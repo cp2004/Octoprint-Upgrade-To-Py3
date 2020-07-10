@@ -31,6 +31,9 @@ curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go
 python3 upgrade.py
 ```
 
+## Common problems
+  - Installing [Bed Level Visualiser](https://github.com/jneilliii/OctoPrint-BedLevelVisualizer) may fail if numpy fails to install. See [here](https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/issues/224#issuecomment-614968499) for a fix.
+
 ## Limitations
 The script is unable to restore plugins that are not on the repository. If it cannot find the plugin listed it will list them to you and you should install them manually afterwards.
 
