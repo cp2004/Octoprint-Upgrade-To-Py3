@@ -36,7 +36,8 @@ jobs:
       - name: 🚀 Migrate to Python 3
         run: |
           python3 --version
-          python3 upgrade.py TEST ./venv2 ./octoprint-test
+          python3 upgrade.py TEST ./venv2 ./octoprint-test   # venv2 becomes Python 3 from now
+          ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
 
   migrate_with_plugins:
     runs-on: ubuntu-latest
@@ -71,4 +72,38 @@ jobs:
       - name: 🚀 Migrate to Python 3
         run: |
           python3 --version
-          python3 upgrade.py TEST ./venv2 ./octoprint-test
+          python3 upgrade.py TEST ./venv2 ./octoprint-test  # venv2 becomes Python 3 from now
+          ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
+          
+  migrate_with_bedlevelvis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: 👷 Set up Python 2
+        uses: actions/setup-python@v2
+        with:
+          python-version: 2.7
+      - name: 👷 Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: ➕ Install dependencies
+        run: |
+          python -m pip install --upgrade pip virtualenv
+          python3 -m pip install --upgrade pip virtualenv requests
+      - name: 🏗 Create Python 2 virtualenv
+        run: |
+          python -m virtualenv --python=/usr/bin/python2 venv2
+      - name: 🏗 Install OctoPrint on Python 2
+        run: |
+          ./venv2/bin/python --version
+          ./venv2/bin/python -m pip install octoprint
+      - name: 🏗 Install some plugins
+        run: |
+          ./venv2/bin/python -m pip install "https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/archive/master.zip"
+      - name: 🚀 Migrate to Python 3
+        run: |
+          python3 --version
+          python3 upgrade.py TEST ./venv2 ./octoprint-test  # venv2 becomes Python 3 from now
+          ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
+
