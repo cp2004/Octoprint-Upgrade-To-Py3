@@ -43,6 +43,3 @@ Will not tell you if the plugins are not Python 3 compatible, you will have to c
 Please open an issue if you find something wrong, or have a feature request.
 If you would like to make a PR, please do so against the `devel` branch as `master` is downloaded by users and I don't want changes that accidentally break something!
 If your are making a PR for a feature, please open an issue first as there may be other plans in the pipeline that would be disruptive to development
-
-## TODO
-Add github action to test the install.... WIP
