@@ -25,7 +25,6 @@ import os
 import json
 import subprocess
 import zipfile
-import requests
 import re
 import time
 import queue
@@ -344,6 +343,95 @@ def stop_octoprint(command, backup_path):
         bail("Fatal Error: Exiting")
 
 
+def create_new_venv(venv_path, backup_path):
+    def failed(venv_path):
+        print_c("ERROR: Failed to create Python 3 venv")
+        print("Please check you don't have a folder at {}.bak".format(venv_path))
+        cleanup(venv_path)
+        bail("Fatal Error: Exiting")
+    output, poll = run_sys_command(['mv', venv_path, '{}.bak'.format(venv_path)])
+    if poll != 0:
+        failed(venv_path)
+    output, poll = run_sys_command(['virtualenv', '--python=/usr/bin/python3', venv_path])
+    if poll != 0:
+        failed(venv_path)
+
+    print_c("Successfully created Python 3 venv at {}".format(venv_path))
+
+
+def install_octoprint(venv_path, backup_path):
+    print("\nInstalling OctoPrint", end="")
+    print_c("(This may take a while - Do not cancel!)", TextColors.YELLOW)
+    output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', 'OctoPrint'])
+
+    if poll != 0:
+        print_c("ERROR: OctoPrint failed to install")
+        print("To restore your previous install, download the file at: ")
+        print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
+        cleanup(backup_path)
+        bail("Error installing OctoPrint, cannot proceed")
+    else:
+        print_c("OctoPrint successfully installed!", TextColors.GREEN)
+
+
+def install_plugins(venv_path, plugin_keys, backup_path):
+    try:
+        import requests
+    except ImportError:
+        print_c("requests not installed - installing now")
+        output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', 'requests'])
+    
+    print("\nDownloading OctoPrint's plugin repo")
+    response = requests.get('https://plugins.octoprint.org/plugins.json')
+    if not response.ok:
+        print("TODO ask if we need to bail if no plugins")
+        confirm_to_go("Press ctrl-c please!")
+
+    plugin_repo = response.json()
+    plugins_to_install = []
+    for plugin in plugin_repo:
+        if plugin['id'] in plugin_keys:
+            plugins_to_install.append({'id': plugin['id'], 'url': plugin['archive'], 'name': plugin['title']})
+            plugin_keys.remove(plugin['id'])
+    print("")
+
+    plugin_errors = []
+    for plugin in plugins_to_install:
+        print("Installing {}".format(plugin['title']))
+        output, poll = run_sys_command([venv_path, '-m', 'pip', 'install', plugin['url']])
+        if poll != 0:
+            print_c("ERROR: Plugin {} failed to install".format(plugin['name']), TextColors.RED)
+            plugin_errors.append(plugin)
+        else:
+            print_c("Plugin {} successfully installed".format(plugin['name']), TextColors.GREEN)
+
+    if len(plugin_errors):
+        print_c("Failed to install these plugins:", TextColors.YELLOW)
+        for plugin in plugin_errors:
+            print("- {}, url: {}".format(plugin['name'], plugin['url']))
+        print_c("They were found on the plugin repo but failed to install", TextColors.YELLOW)
+
+    if len(plugin_keys):
+        print_c("These plugins were not found on the repo", TextColors.YELLOW)
+        print("Please install them manually, from OctoPrint's plugin manager")
+        for not_found_plugin in plugin_keys:
+            print("- {}".format(not_found_plugin))
+
+
+def start_octoprint(command):
+    output, poll = run_sys_command(command)
+    if poll != 0:
+        print_c("Error starting OctoPrint service", TextColors.RED)
+        print("You will need to start it yourself")
+
+
+def end_text():
+    print_c("Finished! OctoPrint should be restarted and ready to go", TextColors.GREEN)
+    print("Once you have verified the install works, you can safely remove the folder {}.bak".format(PATH_TO_VENV))
+    print("If you want to go back (If it doesn't work) to Python 2 download the file at: ")
+    print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
+
+
 if __name__ == '__main__':
     start_text()
     confirm_to_go()
@@ -362,8 +450,18 @@ if __name__ == '__main__':
     plugin_keys = read_plugins_from_backup(backup_location)
 
     # Install python3-dev
+    # backup_location is passed to these so that they can clean up in the event of an error
     install_python3_dev(backup_location)
 
     # Install OctoPrint
     if commands['stop']:
         stop_octoprint(commands['stop'], backup_location)
+    create_new_venv(path_to_venv, backup_location)
+    install_octoprint(path_to_venv, backup_location)
+    if len(plugin_keys):
+        install_plugins(path_to_venv, plugin_keys, backup_location)
+    if commands['start']:
+        start_octoprint(commands['start'])
+
+    cleanup(backup_location)
+    end_text()
