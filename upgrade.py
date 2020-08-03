@@ -129,11 +129,10 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
     """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which"""
     print(msg)
     try:
-        prompt = input()  # ctrl-c is caught here
-        go = True
+        input()  # ctrl-c is caught here
+        return True
     except KeyboardInterrupt:
-        go = False
-    return go
+        return False
 
 
 def get_sys_info():
