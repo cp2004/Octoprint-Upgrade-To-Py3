@@ -10,17 +10,241 @@
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
-
+#
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# PYTHON 3 Check - this script can only run on Python 3
+import sys
+if sys.version_info.major != 3:
+    print("This script will only run on python 3")
+    print("Run using 'python3 upgrade.py'")
+    sys.exit(0)
 
-# import required modules
+import os
+import json
+import subprocess
+import zipfile
+import requests
+import re
+import time
+import queue
+import threading
 
-# Methods for all of the functions
+# CONSTANTS
+BASE = '\033['
+PROGRESS_FRAMES = [
+    '      ',
+    '.     ',
+    '..    ',
+    '...   ',
+    '....  ',
+    '..... ',
+    '......',
+]
+PROGRESS_WHEEL_Q = queue.Queue()
+PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
 
-# if name == main for main functions. Means we can import from tests too.....
+
+# Base classes, used throughout the script
+class TextColors:
+    RESET = BASE + '39m'
+    RED = BASE + '31m'
+    GREEN = BASE + '32m'
+    YELLOW = BASE + '33m'
+
+
+class TextStyles:
+    BRIGHT = BASE + '1m'
+    NORMAL = BASE + '22m'
+
+
+# ------------------
+# Useful utilities
+# ------------------
+def print_c(msg, color, style=None, end='\n'):
+    if not style:
+        print(color, msg, end, TextColors.RESET)
+    else:
+        print(color, style, msg, end, TextColors.RESET, TextStyles.NORMAL)
+
+
+def progress_wheel(base):
+    """
+    Adds an animated progress indicator. MUST BE RUN AS A THREAD as it will block.
+    Put anything in PROGRESS_WHEEL_Q to stop it.
+
+    Args:
+        base (str): String to be used as the base of the indicator (Example: "Loading")
+    """
+    while PROGRESS_WHEEL_Q.empty():
+        for frame in PROGRESS_FRAMES:
+            print('\r{}{}'.format(base, frame), end='')
+            if not PROGRESS_WHEEL_Q.empty():
+                PROGRESS_WHEEL_Q.get()  # Get and throw away message, we need to end
+                return
+            time.sleep(0.15)
+
+
+# Methods for text printing & waiting
+def start_text():
+    print("OctoPrint Upgrade to Py 3 (v2.0.0)\n")
+    print("Hello! This script will move your existing OctoPrint configuration from Python 2 to Python 3")
+    print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
+    print_c("and it will disrupt any ongoing print jobs.", TextColors.RED, TextStyles.BRIGHT)
+    print("It will install the latest version of OctoPrint (1.4.0) and all plugins.")
+    print("No configuration or other files will be overwritten")
+
+
+def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
+    """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which"""
+    print(msg)
+    try:
+        prompt = input()  # ctrl-c is caught here
+        go = True
+    except KeyboardInterrupt:
+        go = False
+    return go
+
+
+def get_sys_info():
+    valid = sys.platform == 'linux'
+    octopi = False
+    if valid:
+        if os.path.isfile(PATH_TO_OCTOPI_VERSION):
+            valid = validate_octopi_ver()  # 0.16 <= ver < 0.18
+            if not valid:
+                print_c("Your OctoPi install does not support upgrading OctoPrint to Python 3 - "
+                        "Please upgrade your install.", TextColors.RED)
+                print_c("Details: ", TextColors.RED)  # TODO Link to some kind of FAQ about what to do
+            octopi = True
+        else:
+            octopi = False
+    return valid, octopi
+
+
+def validate_octopi_ver():
+    """
+    Supported versions of OctoPi are 0.16 an 0.17.
+    0.15 and earlier do not have required dependencies installed.
+    """
+    # TODO Thorougly test this, I hope it works
+    valid = False
+    major = minor = patch = 0
+
+    with open(PATH_TO_OCTOPI_VERSION, 'r') as version_file:
+        for line in version_file:
+            if line:  # Make sure the line is not empty
+                try:
+                    major, minor, patch = line.split(".")
+                except Exception as e:
+                    if not major or not minor or not major:
+                        print("Problem accessing OctoPi version number, falling back to manual input")
+                        print(e)
+                        valid = False
+    if major or minor or patch:
+        if int(major) == 0:
+            if 16 <= int(minor) < 18:
+                valid = True
+
+    print("OctoPi version: {}.{}.{}".format(major, minor, patch))
+    return valid
+
+
+def test_octoprint_version(venv_path):
+    output, exit_code = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'octoprint', '--version'])
+    if exit_code != 0:
+        bail("Failed to find OctoPrint install\n"
+             "If you are not on OctoPi, please check you entered the correct path to your virtual environment")
+    version_no = re.search(r"(?<=version )(.*)", output[0]).group().split('.')
+    print("OctoPrint version: {}.{}.{}".format(version_no[0], version_no[1], version_no[2]))
+    if int(version_no[0]) >= 1 and int(version_no[1]) >= 4:
+        return True
+    else:
+        # This is not strictly needed, but since I am only testing this against OctoPrint 1.4.0 or later
+        # I cannot guarantee behaviour of previous versions, and users should be running something recent anyway.
+        return False
+
+
+def get_env_config(octopi):
+    sys_commands = {}
+    venv_path = None
+    config_base = None
+    if octopi:  # We are on OctoPi
+        venv_path = "/home/pi/oprint"
+        sys_commands['stop'] = "sudo service octoprint stop"
+        sys_commands['start'] = START_COMMAND = "sudo service octoprint start"
+        config_base = "/home/pi/.octoprint"
+    else:
+        print("Please provide the path to your virtual environment and the config directory of OctoPrint")
+        while not venv_path:
+            path = input("Path: ")
+            if os.path.isfile("{}/bin/python".format(path)):
+                valid = check_venv_python(path)
+                if valid:
+                    venv_path = path
+                else:
+                    print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
+                            "Please try again")
+            else:
+                print_c("Invalid venv path, please try again", TextColors.YELLOW)
+
+        while not config_base:
+            conf = input("Config directory: ")
+            if os.path.isfile(os.path.join(conf, 'config.yaml')):
+                print_c("Config directory valid", TextColors.GREEN)
+                config_base = conf
+            else:
+                print("Invalid path, please try again", TextColors.GREEN)
+
+        print("\nTo do the install, we need the service stop and start commands. "
+              "(Leave blank if you don't have a service set up)")
+        sys_commands['stop'] = input("Stop command: ")
+        sys_commands['start'] = input("Start command: ")
+
+    return path_to_venv, sys_commands, config_dir
+
+
+def check_venv_python(venv_path):
+    version_str = run_sys_command(['{}/bin/python'.format(venv_path), '--version'])
+    if "2.7" not in version_str:  # Lazy way of checking not Py3...
+        return False
+    else:
+        return True
+
+
+def run_sys_command(command, parser):
+    output = []
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE
+    )
+    while True:
+        output_line = process.stdout.readline().decode('utf-8')
+        poll = process.poll()
+        if output_line == '' and process.poll() is not None:
+            break
+        if output_line:
+            output.append(output_line)
+
+    return output, poll
+
+
+def bail(msg):
+    print_c(msg, TextColors.RED)
+    sys.exit(0)
 
 
 if __name__ == '__main__':
+    start_text()
+    confirm_to_go()
+    sys_valid, octopi_valid = get_sys_info()
+    if not sys_valid:
+        bail("Looks like your OS is not linux, or the OctoPi version number is un-readable")
+    path_to_venv, commands, config_dir = get_env_config(octopi_valid)
+    octoprint_greater_140 = test_octoprint_version(path_to_venv)
+    if not octoprint_greater_140:
+        bail("Please upgrade to an OctoPrint version >= 1.4.0 for Python 3 compatibility")
+
+
     print("Hello World!")
