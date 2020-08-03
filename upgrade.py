@@ -28,7 +28,6 @@ import zipfile
 import re
 import time
 import queue
-import threading
 
 # CONSTANTS
 BASE = '\033['
@@ -380,12 +379,14 @@ def install_plugins(venv_path, plugin_keys, backup_path):
     except ImportError:
         print_c("requests not installed - installing now")
         output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', 'requests'])
-    
+
     print("\nDownloading OctoPrint's plugin repo")
     response = requests.get('https://plugins.octoprint.org/plugins.json')
     if not response.ok:
-        print("TODO ask if we need to bail if no plugins")
-        confirm_to_go("Press ctrl-c please!")
+        print("Plugin repo couldn't be reached")
+        print("Do you want to continue without installing plugins?")
+        if not confirm_to_go():
+            return
 
     plugin_repo = response.json()
     plugins_to_install = []
@@ -425,16 +426,17 @@ def start_octoprint(command):
         print("You will need to start it yourself")
 
 
-def end_text():
+def end_text(venv_path):
     print_c("Finished! OctoPrint should be restarted and ready to go", TextColors.GREEN)
-    print("Once you have verified the install works, you can safely remove the folder {}.bak".format(PATH_TO_VENV))
+    print("Once you have verified the install works, you can safely remove the folder {}.bak".format(venv_path))
     print("If you want to go back (If it doesn't work) to Python 2 download the file at: ")
     print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
 
 
 if __name__ == '__main__':
     start_text()
-    confirm_to_go()
+    if not confirm_to_go():
+        bail("Bye!")
 
     # Validate system info
     sys_valid, octopi_valid = get_sys_info()
@@ -464,4 +466,4 @@ if __name__ == '__main__':
         start_octoprint(commands['start'])
 
     cleanup(backup_location)
-    end_text()
+    end_text(path_to_venv)
