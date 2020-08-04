@@ -62,9 +62,9 @@ class TextStyles:
 # ------------------
 def print_c(msg, color, style=None, end='\n'):
     if not style:
-        print(color, msg, end, TextColors.RESET)
+        print(color, msg, TextColors.RESET, sep="", end=end)
     else:
-        print(color, style, msg, end, TextColors.RESET, TextStyles.NORMAL)
+        print(color, style, msg, TextColors.RESET, TextStyles.NORMAL, end=end, sep="")
 
 
 def progress_wheel(base):
@@ -84,18 +84,21 @@ def progress_wheel(base):
             time.sleep(0.15)
 
 
-def run_sys_command(command, sudo=False):
+def run_sys_command(command, custom_parser=False, sudo=False):
     output = []
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE
     )
+    last_state = None
     while True:
         output_line = process.stdout.readline().decode('utf-8')
         poll = process.poll()
         if output_line == '' and process.poll() is not None:
             break
         if output_line:
+            if callable(custom_parser):
+                last_state = custom_parser(output_line, last_state)
             if sudo and 'sudo' in output_line:
                 print(output_line, end="")
             output.append(output_line)
@@ -118,11 +121,12 @@ def cleanup(path_to_zipfile):
 # ---------------------
 def start_text():
     print("OctoPrint Upgrade to Py 3 (v2.0.0)\n")
-    print("Hello! This script will move your existing OctoPrint configuration from Python 2 to Python 3")
+    print("Hello!")
+    print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
     print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
     print_c("and it will disrupt any ongoing print jobs.", TextColors.RED, TextStyles.BRIGHT)
-    print("It will install the latest version of OctoPrint (1.4.0) and all plugins.")
-    print("No configuration or other files will be overwritten")
+    print("\nIt will install the latest version of OctoPrint (1.4.1) and all plugins.")
+    print("No configuration or other files will be overwritten\n")
 
 
 def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
@@ -180,13 +184,13 @@ def validate_octopi_ver():
             if 16 <= int(minor) < 18:
                 valid = True
 
-    print("OctoPi version: {}.{}.{}".format(major, minor, patch))
+    print("OctoPi version: {}.{}.{}".format(major, minor, patch.replace("\n", "")))
     return valid
 
 
 def test_octoprint_version(venv_path):
     output, exit_code = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'octoprint', '--version'])
-    if exit_code != 0:
+    if exit_code != 0 or not output:
         bail("Failed to find OctoPrint install\n"
              "If you are not on OctoPi, please check you entered the correct path to your virtual environment")
     version_no = re.search(r"(?<=version )(.*)", output[0]).group().split('.')
@@ -238,15 +242,16 @@ def get_env_config(octopi):
         sys_commands['stop'] = input("Stop command: ")
         sys_commands['start'] = input("Start command: ")
 
-    return path_to_venv, sys_commands, config_dir
+    return venv_path, sys_commands, config_base
 
 
 def check_venv_python(venv_path):
-    version_str = run_sys_command(['{}/bin/python'.format(venv_path), '--version'])
-    if "2.7" not in version_str:  # Lazy way of checking not Py3... Will almost certainly come back to bite
-        return False
-    else:
-        return True
+    version_str, poll = run_sys_command(['{}/bin/python'.format(venv_path), '--version'])
+    for line in version_str:
+        if "2.7" in version_str:  # Lazy way of checking not Py3... Will almost certainly come back to bite
+            return True
+    return False
+
 
 
 def create_backup(venv_path, config_path):
@@ -259,6 +264,8 @@ def create_backup(venv_path, config_path):
     Returns:
         str: path to backup zip file
     """
+    print("Reading installed plugins...")
+
     command = ["{}/bin/python".format(venv_path), "-m", "octoprint", "plugins", "backup:backup", "--exclude",
                "timelapse", "--exclude", "uploads"]
     output, poll = run_sys_command(command)
@@ -268,11 +275,11 @@ def create_backup(venv_path, config_path):
 
     backup_path_line = None
     for line in output:
-        if 'Creating' in output:
-            backup_path_line = output
+        if 'Creating' in line:
+            backup_path_line = line
 
     if not backup_path_line:
-        print_c("ERROR: Could not find path to backup")
+        print_c("ERROR: Could not find path to backup", TextColors.RED)
         bail("Fatal error, exiting")
 
     zip_name = re.search(r'(?<=Creating backup at )(.*)(?=.zip)', backup_path_line).group()
@@ -312,8 +319,8 @@ def read_plugins_from_backup(backup_path):
 
 
 def install_python3_dev(backup_path):
-    print("\nRoot access is required to install python3-dev, please fill in the password prompt if shown")
-    print("Updating package list")
+    print("Root access is required to install python3-dev, please fill in the password prompt if shown")
+    print("Updating package list...")
     output, poll = run_sys_command(['sudo', 'apt-get', 'update'], sudo=True)
     if poll != 0:
         print_c("ERROR: failed to update package list", TextColors.RED)
@@ -321,7 +328,7 @@ def install_python3_dev(backup_path):
         cleanup(backup_path)
         bail("Fatal error: Exiting")
 
-    print("Installing python3-dev")
+    print("Installing python3-dev...")
     output, poll = run_sys_command(['sudo', 'apt-get', 'install', 'python3-dev', '-y'], sudo=True)
     if poll != 0:
         print_c("ERROR: failed to install python3-dev", TextColors.RED)
@@ -329,11 +336,15 @@ def install_python3_dev(backup_path):
         cleanup(backup_path)
         bail("Fatal error: Exiting")
     else:
+        for line in output:
+            if 'newest version' in line:
+                print_c(line, TextColors.GREEN)
+                return
         print_c("Successfully installed python3-dev", TextColors.GREEN)
 
 
 def stop_octoprint(command, backup_path):
-    output, poll = run_sys_command(command)
+    output, poll = run_sys_command(command.split())
     if poll != 0:
         print_c("ERROR: failed to stop OctoPrint service", TextColors.RED)
         print("Please check you specified the correct command if you are on a manual install")
@@ -342,28 +353,30 @@ def stop_octoprint(command, backup_path):
 
 
 def create_new_venv(venv_path, backup_path):
-    def failed(venv_path):
-        print_c("ERROR: Failed to create Python 3 venv")
+    def failed(backup_path, msg):
+        print_c("ERROR: Failed to create Python 3 venv", TextColors.RED)
+        print_c(msg, TextColors.RED)
         print("Please check you don't have a folder at {}.bak".format(venv_path))
-        cleanup(venv_path)
+        cleanup(backup_path)
         bail("Fatal Error: Exiting")
+    print("Creating new Python 3 environment...")
     output, poll = run_sys_command(['mv', venv_path, '{}.bak'.format(venv_path)])
     if poll != 0:
-        failed(venv_path)
+        failed(backup_path, "Could not move existing env out of the way")
     output, poll = run_sys_command(['virtualenv', '--python=/usr/bin/python3', venv_path])
     if poll != 0:
-        failed(venv_path)
+        failed(backup_path, "Could not create new venv")
 
-    print_c("Successfully created Python 3 venv at {}".format(venv_path))
+    print_c("Successfully created Python 3 venv at {}".format(venv_path), TextColors.GREEN)
 
 
 def install_octoprint(venv_path, backup_path):
-    print("\nInstalling OctoPrint", end="")
+    print("\nInstalling OctoPrint... ", end="")
     print_c("(This may take a while - Do not cancel!)", TextColors.YELLOW)
-    output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', 'OctoPrint'])
+    output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', 'OctoPrint'], custom_parser=pip_output_parser)
 
     if poll != 0:
-        print_c("ERROR: OctoPrint failed to install")
+        print_c("ERROR: OctoPrint failed to install", TextColors.RED)
         print("To restore your previous install, download the file at: ")
         print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
         cleanup(backup_path)
@@ -372,12 +385,32 @@ def install_octoprint(venv_path, backup_path):
         print_c("OctoPrint successfully installed!", TextColors.GREEN)
 
 
+def pip_output_parser(line, last_state):
+    if 'Collecting' in line and last_state != 'collecting':
+        print("Collecting required packages")
+        return 'collecting'
+    if 'Installing' in line and last_state != 'installing':
+        print("Installing collected packages")
+        return 'installing'
+    if 'error' in line.lower():
+        print("Error installing package")
+        print_c(line, TextColors.RED)
+    else:
+        return last_state
+
+
 def install_plugins(venv_path, plugin_keys, backup_path):
     try:
         import requests
     except ImportError:
         print_c("requests not installed - installing now")
         output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', 'requests'])
+        if poll != 0:
+            print_c("requests failed to install", TextColors.RED)
+            print("This is a required dependency to install plugins. Do you want to continue without installing plugins?")
+            if not confirm_to_go():
+                return
+        import requests
 
     print("\nDownloading OctoPrint's plugin repo")
     response = requests.get('https://plugins.octoprint.org/plugins.json')
@@ -397,8 +430,8 @@ def install_plugins(venv_path, plugin_keys, backup_path):
 
     plugin_errors = []
     for plugin in plugins_to_install:
-        print("Installing {}".format(plugin['title']))
-        output, poll = run_sys_command([venv_path, '-m', 'pip', 'install', plugin['url']])
+        print("Installing {}".format(plugin['name']))
+        output, poll = run_sys_command([venv_path, '-m', 'pip', 'install', plugin['url']], custom_parser=pip_output_parser)
         if poll != 0:
             print_c("ERROR: Plugin {} failed to install".format(plugin['name']), TextColors.RED)
             plugin_errors.append(plugin)
@@ -419,7 +452,7 @@ def install_plugins(venv_path, plugin_keys, backup_path):
 
 
 def start_octoprint(command):
-    output, poll = run_sys_command(command)
+    output, poll = run_sys_command(command.split())
     if poll != 0:
         print_c("Error starting OctoPrint service", TextColors.RED)
         print("You will need to start it yourself")
@@ -438,6 +471,7 @@ if __name__ == '__main__':
         bail("Bye!")
 
     # Validate system info
+    print("Detecting system info...")
     sys_valid, octopi_valid = get_sys_info()
     if not sys_valid:
         bail("Looks like your OS is not linux, or the OctoPi version number is un-readable")
