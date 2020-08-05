@@ -116,7 +116,7 @@ except IndexError:
 
 
 # Intro text
-print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.6)")
+print("OctoPrint Upgrade from Python 2 to Python 3 (v1.3.7)")
 print("{}This script requires an internet connection {}and {}{}it will disrupt any ongoing print jobs.{}{}".format(
     TextColors.YELLOW, TextColors.RESET, TextColors.RED, TextStyles.BRIGHT, TextColors.RESET, TextStyles.NORMAL))
 print("It will install the latest OctoPrint (1.4.0) and all plugins.")
@@ -201,6 +201,9 @@ while True:
         break
     if output:
         if 'Creating' in output:
+            backup_path_line = output
+            print(output)
+        elif 'Backup located' in output:
             backup_path_line = output
             print(output)
 if backup_output.poll() != 0:
