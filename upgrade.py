@@ -1,5 +1,5 @@
 #    OctoPrint Upgrade To Python 3: Move an existing install over from py2 to 3
-#    Copyright (C) 2020  Charlie Powell
+#    Copyright (C) 2020 Charlie Powell
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -27,23 +27,12 @@ import subprocess
 import zipfile
 import re
 import time
-import queue
 
 # CONSTANTS
 SCRIPT_VERSION = '2.0.0-beta.1'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
-PROGRESS_FRAMES = [
-    '      ',
-    '.     ',
-    '..    ',
-    '...   ',
-    '....  ',
-    '..... ',
-    '......',
-]
-PROGRESS_WHEEL_Q = queue.Queue()
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
 
 
@@ -70,23 +59,6 @@ def print_c(msg, color, style=None, end='\n'):
         print(color, style, msg, TextColors.RESET, TextStyles.NORMAL, end=end, sep="")
 
 
-def progress_wheel(base):
-    """
-    Adds an animated progress indicator. MUST BE RUN AS A THREAD as it will block.
-    Put anything in PROGRESS_WHEEL_Q to stop it.
-
-    Args:
-        base (str): String to be used as the base of the indicator (Example: "Loading")
-    """
-    while PROGRESS_WHEEL_Q.empty():
-        for frame in PROGRESS_FRAMES:
-            print('\r{}{}'.format(base, frame), end='')
-            if not PROGRESS_WHEEL_Q.empty():
-                PROGRESS_WHEEL_Q.get()  # Get and throw away message, we need to end
-                return
-            time.sleep(0.15)
-
-
 def run_sys_command(command, custom_parser=False, sudo=False):
     output = []
     process = subprocess.Popen(
@@ -97,7 +69,7 @@ def run_sys_command(command, custom_parser=False, sudo=False):
     while True:
         output_line = process.stdout.readline().decode('utf-8')
         poll = process.poll()
-        if output_line == '' and process.poll() is not None:
+        if output_line == '' and poll is not None:
             break
         if output_line:
             if callable(custom_parser):
