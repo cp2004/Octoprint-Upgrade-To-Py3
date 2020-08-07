@@ -29,7 +29,7 @@ import re
 import time
 
 # CONSTANTS
-SCRIPT_VERSION = '2.0.0-beta.1'
+SCRIPT_VERSION = '2.0.0-beta.2'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
