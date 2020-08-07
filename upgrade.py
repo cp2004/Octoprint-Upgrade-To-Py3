@@ -182,7 +182,7 @@ def validate_octopi_ver():
                         valid = False
     if major or minor or patch:
         if int(major) == 0:
-            if 16 <= int(minor) < 18:
+            if 16 <= int(minor) <= 18:
                 valid = True
 
     print("OctoPi version: {}.{}.{}".format(major, minor, patch.replace("\n", "")))
