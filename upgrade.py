@@ -30,6 +30,9 @@ import time
 import queue
 
 # CONSTANTS
+SCRIPT_VERSION = '2.0.0'
+LATEST_OCTOPRINT = '1.4.2'
+
 BASE = '\033['
 PROGRESS_FRAMES = [
     '      ',
@@ -106,6 +109,32 @@ def run_sys_command(command, custom_parser=False, sudo=False):
     return output, poll
 
 
+def get_python_version(venv_path):
+    """
+    For some reason, running `python --version` logs to stdout... So we will handle accordingly
+    Runs system command `python --version` and returns output
+
+    Returns:
+        list: List of output lines
+        int: Exit Code from the process
+    """
+    output = []
+    process = subprocess.Popen(
+        ['{}/bin/python'.format(venv_path), '--version'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    last_state = None
+    while True:
+        output_line_stderr = process.stderr.readline().decode('utf-8')
+        poll = process.poll()
+        if output_line_stderr == '' and process.poll() is not None:
+            break
+        if output_line_stderr:
+            output.append(output_line_stderr)
+
+    return output, poll
+
 def bail(msg):
     print_c(msg, TextColors.RED)
     sys.exit(1)
@@ -116,19 +145,6 @@ def cleanup(path_to_zipfile):
     os.remove(path_to_zipfile)
 
 
-# ---------------------
-# Actions to take. Roughly in order of execution in the script
-# ---------------------
-def start_text():
-    print("OctoPrint Upgrade to Py 3 (v2.0.0)\n")
-    print("Hello!")
-    print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
-    print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
-    print_c("and it will disrupt any ongoing print jobs.", TextColors.RED, TextStyles.BRIGHT)
-    print("\nIt will install the latest version of OctoPrint (1.4.1) and all plugins.")
-    print("No configuration or other files will be overwritten\n")
-
-
 def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
     """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which"""
     print(msg)
@@ -137,6 +153,19 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
         return True
     except KeyboardInterrupt:
         return False
+
+
+# ---------------------
+# Actions to take. Roughly in order of execution in the script
+# ---------------------
+def start_text():
+    print("OctoPrint Upgrade to Py 3 (v{})\n".format(SCRIPT_VERSION))
+    print("Hello!")
+    print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
+    print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
+    print_c("and it will disrupt any ongoing print jobs.", TextColors.RED, TextStyles.BRIGHT)
+    print("\nIt will install the latest version of OctoPrint ({}) and all plugins.".format(LATEST_OCTOPRINT))
+    print("No configuration or other files will be overwritten\n")
 
 
 def get_sys_info():
@@ -153,7 +182,7 @@ def get_sys_info():
             if not valid:
                 print_c("Your OctoPi install does not support upgrading OctoPrint to Python 3 - "
                         "Please upgrade your install.", TextColors.RED)
-                print_c("Details: ", TextColors.RED)  # TODO Link to some kind of FAQ about what to do
+                print_c("Details: TODO", TextColors.RED)  # TODO Link to some kind of FAQ about what to do
             octopi = True
         else:
             octopi = False
@@ -173,7 +202,7 @@ def validate_octopi_ver():
         for line in version_file:
             if line:  # Make sure the line is not empty
                 try:
-                    major, minor, patch = line.split(".")
+                    major, minor, patch = line.split(".")  # TODO use regex for this... .split is too unreliable
                 except Exception as e:
                     if not major or not minor or not major:
                         print("Problem accessing OctoPi version number, falling back to manual input")
@@ -207,26 +236,28 @@ def get_env_config(octopi):
     sys_commands = {}
     venv_path = None
     config_base = None
-    if octopi:  # We are on OctoPi
+    if octopi:  # TODO Validate these paths? To check user has not messed something up
         venv_path = "/home/pi/oprint"
         sys_commands['stop'] = "sudo service octoprint stop"
         sys_commands['start'] = "sudo service octoprint start"
         config_base = "/home/pi/.octoprint"
     else:
         print("Please provide the path to your virtual environment and the config directory of OctoPrint")
+        print("On OctoPi, this would be /home/pi/oprint and commands 'sudo service octoprint stop/start'")
         while not venv_path:
             path = input("Path: ")
             if os.path.isfile("{}/bin/python".format(path)):
                 valid = check_venv_python(path)
                 if valid:
                     venv_path = path
+                    print_c("Path valid", TextColors.GREEN)
                 else:
                     print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
                             "Please try again", TextColors.YELLOW)
             else:
                 print_c("Invalid venv path, please try again", TextColors.YELLOW)
-            if not path.endswith('/'):
-                print_c("Please enter your path without a leading slash", TextColors.YELLOW)
+            if path.endswith('/'):
+                print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
                 venv_path = None
 
         while not config_base:
@@ -235,7 +266,7 @@ def get_env_config(octopi):
                 print_c("Config directory valid", TextColors.GREEN)
                 config_base = conf
             else:
-                print("Invalid path, please try again", TextColors.GREEN)
+                print_c("Invalid path, please try again", TextColors.RED)
 
         print("\nTo do the install, we need the service stop and start commands. "
               "(Leave blank if you don't have a service set up)")
@@ -246,12 +277,16 @@ def get_env_config(octopi):
 
 
 def check_venv_python(venv_path):
-    version_str, poll = run_sys_command(['{}/bin/python'.format(venv_path), '--version'])
+    version_str, poll = get_python_version(venv_path)
     for line in version_str:
-        if "2.7" in version_str:  # Lazy way of checking not Py3... Will almost certainly come back to bite
-            return True
+        match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$", line.rstrip())
+        if match:
+            major, minor, patch = match.group('major'), match.group('minor'), match.group('patch')
+            if int(major) == 2:
+                return True
+            elif int(major) == 3:
+                return False
     return False
-
 
 
 def create_backup(venv_path, config_path):
@@ -356,18 +391,18 @@ def create_new_venv(venv_path, backup_path):
     def failed(backup_path, msg):
         print_c("ERROR: Failed to create Python 3 venv", TextColors.RED)
         print_c(msg, TextColors.RED)
-        print("Please check you don't have a folder at {}.bak".format(venv_path))
         cleanup(backup_path)
         bail("Fatal Error: Exiting")
+
     print("Creating new Python 3 environment...")
     output, poll = run_sys_command(['mv', venv_path, '{}.bak'.format(venv_path)])
     if poll != 0:
-        failed(backup_path, "Could not move existing env out of the way")
-    output, poll = run_sys_command(['virtualenv', '--python=/usr/bin/python3', venv_path])
+        failed(backup_path, "Could not move existing env out of the way\n Please check you don't have anything at {}.bak".format(venv_path))
+    output, poll = run_sys_command(['python', '-m', 'virtualenv', '--python=/usr/bin/python3', venv_path])
     if poll != 0:
         failed(backup_path, "Could not create new venv")
 
-    print_c("Successfully created Python 3 venv at {}".format(venv_path), TextColors.GREEN)
+    print_c("Successfully created Python 3 environment at {}".format(venv_path), TextColors.GREEN)
 
 
 def install_octoprint(venv_path, backup_path):
@@ -459,10 +494,10 @@ def start_octoprint(command):
 
 
 def end_text(venv_path):
-    print_c("Finished! OctoPrint should be restarted and ready to go", TextColors.GREEN)
+    print_c("Finished! OctoPrint should be ready to go", TextColors.GREEN)
     print("Once you have verified the install works, you can safely remove the folder {}.bak".format(venv_path))
     print("If you want to go back (If it doesn't work) to Python 2 download the file at: ")
-    print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
+    print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")  # TODO Point to tagged release point, to prevent confusion.
 
 
 if __name__ == '__main__':
@@ -476,6 +511,8 @@ if __name__ == '__main__':
     if not sys_valid:
         bail("Looks like your OS is not linux, or the OctoPi version number is un-readable")
     path_to_venv, commands, config_dir = get_env_config(octopi_valid)
+
+    print("Getting OctoPrint version...")
     octoprint_greater_140 = test_octoprint_version(path_to_venv)
     if not octoprint_greater_140:
         bail("Please upgrade to an OctoPrint version >= 1.4.0 for Python 3 compatibility")
