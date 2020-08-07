@@ -438,7 +438,7 @@ def install_plugins(venv_path, plugin_keys, backup_path):
     plugin_errors = []
     for plugin in plugins_to_install:
         print("Installing {}".format(plugin['name']))
-        output, poll = run_sys_command([venv_path, '-m', 'pip', 'install', plugin['url']], custom_parser=pip_output_parser)
+        output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', plugin['url']], custom_parser=pip_output_parser)
         if poll != 0:
             print_c("ERROR: Plugin {} failed to install".format(plugin['name']), TextColors.RED)
             plugin_errors.append(plugin)
