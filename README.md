@@ -4,7 +4,7 @@
 
  NOTE: This is not a plugin! A script to move an existing octoprint install from Python 2 to Python 3
  
- Only runs on linux
+## You are looking at the development version of this script - Be sure you know what you are doing!
 
 ---
 ## Usage
@@ -13,7 +13,7 @@ A one time script to upgrade your OctoPrint installation from Python 2 to Python
 It is recommended that you use the plugin [Python 3 check](https://plugins.octoprint.org/plugins/Python3PluginCompatibilityCheck/) to check that your plugins are compatible before using this script as any that are not Python 3 compatible will not work!
 Following commands will get you to Python 3:
 ```
-curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/upgrade.py --output upgrade.py
+curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/dev/2.0/upgrade.py --output upgrade.py
 python3 upgrade.py
 ```
 If you are not running OctoPi, you will be prompted to provide:
