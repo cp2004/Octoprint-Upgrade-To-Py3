@@ -4,8 +4,6 @@
 
  NOTE: This is not a plugin! A script to move an existing octoprint install from Python 2 to Python 3
  
-## You are looking at the development version of this script - Be sure you know what you are doing!
-
 ---
 ## Usage
 A one time script to upgrade your OctoPrint installation from Python 2 to Python 3
