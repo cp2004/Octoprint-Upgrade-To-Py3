@@ -8,7 +8,7 @@
 ## Usage
 A one time script to upgrade your OctoPrint installation from Python 2 to Python 3
 
-It is recommended that you use the plugin [Python 3 check](https://plugins.octoprint.org/plugins/Python3PluginCompatibilityCheck/) to check that your plugins are compatible before using this script as any that are not Python 3 compatible will not work!
+It is recommended that you use wither the plugin [Python 3 check](https://plugins.octoprint.org/plugins/Python3PluginCompatibilityCheck/) by [jneilliii](https://github.com/jneilliii) or from OctoPrint 1.4.1 this info is in the Plugin Manager to check that your plugins are compatible before using this script as any that are not Python 3 compatible will not work!
 Following commands will get you to Python 3:
 ```
 curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/upgrade.py --output upgrade.py
