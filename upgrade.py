@@ -269,7 +269,10 @@ def get_env_config(octopi):
         print("Please provide the path to your virtual environment and the config directory of OctoPrint")
         print("On OctoPi, this would be /home/pi/oprint and commands 'sudo service octoprint stop/start'")
         while not venv_path:
-            path = input("Path: ")
+            try:
+                path = input("Path: ")
+            except KeyboardInterrupt:
+                bail("Bye!")
             if os.path.isfile("{}/bin/python".format(path)):
                 valid = check_venv_python(path)
                 if valid:
@@ -285,7 +288,10 @@ def get_env_config(octopi):
                 venv_path = None
 
         while not config_base:
-            conf = input("Config directory: ")
+            try:
+                conf = input("Config directory: ")
+            except KeyboardInterrupt:
+                bail("Bye!")
             if os.path.isfile(os.path.join(conf, 'config.yaml')):
                 print_c("Config directory valid", TextColors.GREEN)
                 config_base = conf
@@ -294,8 +300,11 @@ def get_env_config(octopi):
 
         print("\nTo do the install, we need the service stop and start commands. "
               "(Leave blank if you don't have a service set up)")
-        sys_commands['stop'] = input("Stop command: ")
-        sys_commands['start'] = input("Start command: ")
+        try:
+            sys_commands['stop'] = input("Stop command: ")
+            sys_commands['start'] = input("Start command: ")
+        except KeyboardInterrupt:
+            bail("Bye!")
 
     return venv_path, sys_commands, config_base
 
