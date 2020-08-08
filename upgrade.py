@@ -27,9 +27,10 @@ import subprocess
 import zipfile
 import re
 import time
+import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.0.0-beta.2'
+SCRIPT_VERSION = '2.0.0'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -48,6 +49,28 @@ class TextStyles:
     BRIGHT = BASE + '1m'
     NORMAL = BASE + '22m'
 
+
+# ------------------
+# Command line argument setup
+# Sets necessary flags that the rest of the script can access
+# ------------------
+
+parser = argparse.ArgumentParser(
+    description="Upgrade your Python 2 OctoPrint install to Python 3")
+parser.add_argument(
+    '-c', '--custom',
+    action="store_true",
+    help="Overrides OctoPi check, allows specifying custom env config",
+    )
+parser.add_argument(
+    '-f', '--force',
+    action="store_true",
+    help="Forces through any checks of confirm-to-go"
+)
+args = parser.parse_args()
+
+FORCE_CUSTOM = args.custom
+FORCE_CONFIRMS = args.force
 
 # ------------------
 # Useful utilities
@@ -120,6 +143,8 @@ def cleanup(path_to_zipfile):
 def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
     """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which"""
     print(msg)
+    if FORCE_CONFIRMS:
+        return True
     try:
         input()  # ctrl-c is caught here
         return True
@@ -166,13 +191,12 @@ def validate_octopi_ver():
     Supported versions of OctoPi are 0.16 an 0.17.
     0.15 and earlier do not have required dependencies installed.
     """
-    # TODO Thorougly test this, I hope it works
     valid = False
     major = minor = patch = 0
 
     with open(PATH_TO_OCTOPI_VERSION, 'r') as version_file:
         for line in version_file:
-            if line:  # Make sure the line is not empty
+            if line:  # Make sure the line is not empty - who knows what might be there
                 try:
                     major, minor, patch = line.split(".")  # TODO use regex for this... .split is too unreliable
                 except Exception as e:
@@ -208,8 +232,36 @@ def get_env_config(octopi):
     sys_commands = {}
     venv_path = None
     config_base = None
-    if octopi:  # TODO Validate these paths? To check user has not messed something up
+    if octopi and not FORCE_CUSTOM:
         venv_path = "/home/pi/oprint"
+        if not os.path.exists(venv_path):
+            print_c("Hmm, seems like you don't have an environment at /home/pi/oprint", TextColors.YELLOW)
+            venv_path = None
+
+        if venv_path and not check_venv_python(venv_path):
+            print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n", TextColors.YELLOW)
+            print_c("If you'd rather upgrade a different virtual env, you can enter the full path here", TextColors.YELLOW)
+            venv_path = None
+
+        while not venv_path:
+            try:
+                path = input("Path: ")
+            except KeyboardInterrupt:
+                bail("Bye!")
+            if os.path.isfile("{}/bin/python".format(path)):
+                valid = check_venv_python(path)
+                if valid:
+                    venv_path = path
+                    print_c("Path valid", TextColors.GREEN)
+                else:
+                    print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
+                            "Please try again", TextColors.YELLOW)
+            else:
+                print_c("Invalid venv path, please try again", TextColors.YELLOW)
+            if path.endswith('/'):
+                print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
+                venv_path = None
+
         sys_commands['stop'] = "sudo service octoprint stop"
         sys_commands['start'] = "sudo service octoprint start"
         config_base = "/home/pi/.octoprint"
@@ -369,7 +421,7 @@ def create_new_venv(venv_path, backup_path):
     print("Creating new Python 3 environment...")
     output, poll = run_sys_command(['mv', venv_path, '{}.bak'.format(venv_path)])
     if poll != 0:
-        failed(backup_path, "Could not move existing env out of the way\n Please check you don't have anything at {}.bak".format(venv_path))
+        failed(backup_path, "Could not move existing env out of the way\nPlease check you don't have anything at {}.bak".format(venv_path))
     output, poll = run_sys_command(['python', '-m', 'virtualenv', '--python=/usr/bin/python3', venv_path])
     if poll != 0:
         failed(backup_path, "Could not create new venv")
