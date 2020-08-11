@@ -471,22 +471,17 @@ def install_plugins(venv_path, plugin_keys, backup_path):
     try:
         import requests
     except ImportError:
-        print_c("requests not installed - installing now")
-        output, poll = run_sys_command(['{}/bin/python'.format(venv_path), '-m', 'pip', 'install', 'requests'])
-        if poll != 0:
-            print_c("requests failed to install", TextColors.RED)
-            print("This is a required dependency to install plugins. Do you want to continue without installing plugins?")
-            if not confirm_to_go():
-                return
-        import requests
+        print_c("Required dependency requests is missing... No plugins can be installed", TextColors.RED)
+        print_c("OctoPrint has been installed, but no plugins have", TextColors.YELLOW)
+        return
 
     print("\nDownloading OctoPrint's plugin repo")
     response = requests.get('https://plugins.octoprint.org/plugins.json')
     if not response.ok:
         print("Plugin repo couldn't be reached")
         print("Do you want to continue without installing plugins?")
-        if not confirm_to_go():
-            return
+        confirm_to_go("Press enter to continue")
+        return
 
     plugin_repo = response.json()
     plugins_to_install = []
