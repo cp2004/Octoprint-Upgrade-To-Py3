@@ -36,8 +36,8 @@ jobs:
       - name: 🚀 Migrate to Python 3
         run: |
           python3 --version
-          python3 upgrade.py TEST ./venv2 ./octoprint-test   # venv2 becomes Python 3 from now
-          ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
+          # python3 upgrade.py TEST ./venv2 ./octoprint-test   # venv2 becomes Python 3 from now
+          # ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
 
   migrate_with_plugins:
     runs-on: ubuntu-latest
@@ -72,8 +72,8 @@ jobs:
       - name: 🚀 Migrate to Python 3
         run: |
           python3 --version
-          python3 upgrade.py TEST ./venv2 ./octoprint-test  # venv2 becomes Python 3 from now
-          ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
+          # python3 upgrade.py TEST ./venv2 ./octoprint-test  # venv2 becomes Python 3 from now
+          # ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
           
   migrate_with_bedlevelvis:
     runs-on: ubuntu-latest
@@ -104,6 +104,6 @@ jobs:
       - name: 🚀 Migrate to Python 3
         run: |
           python3 --version
-          python3 upgrade.py TEST ./venv2 ./octoprint-test  # venv2 becomes Python 3 from now
-          ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
+          # python3 upgrade.py TEST ./venv2 ./octoprint-test  # venv2 becomes Python 3 from now
+          # ./venv2/bin/python -m octoprint --version  # Final check OctoPrint is installed
 
