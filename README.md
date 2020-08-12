@@ -11,7 +11,7 @@ A one time script to upgrade your OctoPrint installation from Python 2 to Python
 It is recommended that you use wither the plugin [Python 3 check](https://plugins.octoprint.org/plugins/Python3PluginCompatibilityCheck/) by [jneilliii](https://github.com/jneilliii) or from OctoPrint 1.4.1 this info is in the Plugin Manager to check that your plugins are compatible before using this script as any that are not Python 3 compatible will not work!
 Following commands will get you to Python 3:
 ```
-curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/upgrade.py --output upgrade.py
+curl https://get.octoprint.org/py3/upgrade.py --output upgrade.py
 python3 upgrade.py
 ```
 If you are not running OctoPi, you will be prompted to provide:
@@ -21,6 +21,11 @@ If you are not running OctoPi, you will be prompted to provide:
   - Command to start (`sudo service octoprint start`)
 
 You may also be asked to provide the `sudo` password so the script can install `python3-dev`, a package required to install some plugins. (If your machine is not running passwordless sudo)
+
+## Command line options
+There are two command line options available, which you can use. Both optional :-
+1. `-f` or `--force`: Forces through any 'confirmations' where you would have to press enter to continue. Note that you may still need to enter your config or sudo password.
+2. `-c` or `--custom`: Force use of custom input, as would be standard on non-OctoPi installs. Useful if you have multiple installs, but started on OctoPi.
 
 ## Returning to the old install
 The script saves your old environment at path/to/env.bak and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible
