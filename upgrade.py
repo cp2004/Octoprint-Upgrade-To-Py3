@@ -16,9 +16,10 @@
 
 # PYTHON 3 Check - this script can only run on Python 3
 import sys
-if sys.version_info.major != 3:
-    print("This script will only run on python 3")
+if sys.version_info.major != 3 and sys.version_info.minor < 6:
+    print("This script will only run on python 3.6+")
     print("Run using 'python3 upgrade.py'")
+    print("If you are on OctoPi 0.16, please not that it is not CURRENTLY compatible, pay attention to the forum post and repo, we are working on a solution.")
     sys.exit(0)
 
 import os
@@ -30,7 +31,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.0.2'
+SCRIPT_VERSION = '2.0.3'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -206,7 +207,7 @@ def validate_octopi_ver():
                         valid = False
     if major or minor or patch:
         if int(major) == 0:
-            if 16 <= int(minor) <= 18:
+            if 16 < int(minor) <= 18:
                 valid = True
 
     print("OctoPi version: {}.{}.{}".format(major, minor, patch.replace("\n", "")))
