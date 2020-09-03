@@ -180,7 +180,7 @@ def get_sys_info():
             if not valid:
                 print_c("Your OctoPi install does not support upgrading OctoPrint to Python 3 - "
                         "Please upgrade your install.", TextColors.RED)
-                print_c("Details: TODO", TextColors.RED)  # TODO Link to some kind of FAQ about what to do
+                print_c("Details: https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported", TextColors.YELLOW)  # TODO Link to some kind of FAQ about what to do
             octopi = True
         else:
             octopi = False
