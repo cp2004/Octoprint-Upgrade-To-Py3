@@ -67,7 +67,7 @@ If your are making a PR for a feature, please open an issue first as there may b
 
 ## Supporting the project!
 Found this script useful?
-You can support my development (**cp2004**) of this script through [Github Sponsors] from as little as $1!
+You can support my development (**cp2004**) of this script through [Github Sponsors](https://github.com/sponsors/cp2004) from as little as $1!
 You can also support Gina over on the main OctoPrint project [here](https://octoprint.org/support-octoprint/)
 
 <a href="https://www.jetbrains.com/?from=cp2004"><img align="left" width="100" height="100" src="jetbrains-variant-2.png" alt="JetBrains Logo"></a> Thanks to JetBrains for supporting an open source license for their brilliant IDEs that I use to develop my projects!
