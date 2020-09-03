@@ -31,15 +31,12 @@ There are two command line options available, which you can use. Both optional :
 2. `-c` or `--custom`: Force use of custom input, as would be standard on non-OctoPi installs. Useful if you have multiple installs, but started on OctoPi.
 
 ## Returning to the old install
-The script saves your old environment at `path/to/env.bak` and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible, and you want to go back to python 2.
+The script saves your old environment at `path/to/env.bak` and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible, and you want to go back to Python 2.
 ```
 curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py --output go_back.py
 python3 upgrade.py
 ```
 
-## Common problems
-  - Installing [Bed Level Visualiser](https://github.com/jneilliii/OctoPrint-BedLevelVisualizer) may fail if numpy fails to install (sometimes silently...). See [here](https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/issues/224#issuecomment-614968499) for a fix.
-  
 ## What do I do if my system is not supported?
 ### OctoPi
 OctoPrint is only compatible with python3 and above for Python 3.6+. As a result, on earlier versions of OctoPi that were not based on Debian Buster, it is not possible to run this script on those OctoPi versions. 
@@ -48,6 +45,8 @@ Currently the recommended way to get your install running on Python 3, is to dow
 * Backup your current install of OctoPrint using the built-in backup function
 * Flash OctoPi 0.17+ to your Raspberry Pi's SD card
 * Restore the backup into the new install
+
+You can also download OctoPi 0.18 development builds, as these come with Python 3 environments pre-installed. **Only do this if you are comfortable with development builds!**
 
 **Note: OctoPi 0.17 comes with OctoPrint 1.3.12 - you will need to update to the same version (or greater) that your old install was before you can restore the backup**
 
@@ -65,3 +64,10 @@ You can follow similar steps to the above for OctoPi, but you would have to re-i
 Please open an issue if you find something wrong, or have a feature request.
 If you would like to make a PR, please do so against the `devel` branch as `master` is downloaded by users and I don't want changes that accidentally break something!
 If your are making a PR for a feature, please open an issue first as there may be other plans in the pipeline that would be disruptive to development
+
+## Supporting the project!
+Found this script useful?
+You can support my development (**cp2004**) of this script through [Github Sponsors] from as little as $1!
+You can also support Gina over on the main OctoPrint project [here](https://octoprint.org/support-octoprint/)
+
+<a href="https://www.jetbrains.com/?from=cp2004"><img align="left" width="100" height="100" src="jetbrains-variant-2.png" alt="JetBrains Logo"></a> Thanks to JetBrains for supporting an open source license for their brilliant IDEs that I use to develop my projects!
