@@ -2,8 +2,9 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/110c98d760aa4e088fdf5a69adcbc4a9)](https://www.codacy.com/manual/cp2004/Octoprint-Upgrade-To-Py3?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cp2004/Octoprint-Upgrade-To-Py3&amp;utm_campaign=Badge_Grade)
 ![Test migration](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/workflows/Test%20migration/badge.svg)
 
- This is not a plugin! A script to move an existing octoprint install from Python 2 to Python 3
- 
+A script to move an existing octoprint install from Python 2 to Python 3.
+Only compatible with OctoPi 0.17 and up since it (and OctoPrint Py3) requires Python 3.6+
+
 ---
 ## Usage
 A one time script to upgrade your OctoPrint installation from Python 2 to Python 3
@@ -14,7 +15,7 @@ Following commands will get you to Python 3:
 curl https://get.octoprint.org/py3/upgrade.py --output upgrade.py
 python3 upgrade.py
 ```
-**Warning: Only compatible with OctoPi 0.17 and OctoPi 0.18 (& Debian Buster) Previous versions do not have sufficient Python 3 versions to run OctoPrint. [See below](#**
+**Warning: Only compatible with OctoPi 0.17 and OctoPi 0.18 (currently dev nightly) (& Debian Buster) Previous versions do not have sufficient Python 3 versions to run OctoPrint. [See more below](https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported)**
 
 If you are not running OctoPi, you will be prompted to provide:
   - The path to the venv (`/home/pi/oprint` on OctoPi)
@@ -30,7 +31,7 @@ There are two command line options available, which you can use. Both optional :
 2. `-c` or `--custom`: Force use of custom input, as would be standard on non-OctoPi installs. Useful if you have multiple installs, but started on OctoPi.
 
 ## Returning to the old install
-The script saves your old environment at path/to/env.bak and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible
+The script saves your old environment at `path/to/env.bak` and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible, and you want to go back to python 2.
 ```
 curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py --output go_back.py
 python3 upgrade.py
@@ -40,12 +41,25 @@ python3 upgrade.py
   - Installing [Bed Level Visualiser](https://github.com/jneilliii/OctoPrint-BedLevelVisualizer) may fail if numpy fails to install (sometimes silently...). See [here](https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/issues/224#issuecomment-614968499) for a fix.
   
 ## What do I do if my system is not supported?
-Pretty much the only way to get the correct Python version is to do a full upgrade. This is technically possible to do by changing the debian repo targets, and doing a `apt full-upgrade` as well as installing OctoPrint on a newer Python version manually. However, by the time you have done this, it would have been easier to create a backup of OctoPrint, flash latest OctoPi (0.18 nightlies will get you straight to Python 3) and restore it.
+### OctoPi
+OctoPrint is only compatible with python3 and above for Python 3.6+. As a result, on earlier versions of OctoPi that were not based on Debian Buster, it is not possible to run this script on those OctoPi versions. 
+#### Recommended route to Python 3
+Currently the recommended way to get your install running on Python 3, is to download the latest version of OctoPi (0.17) from [octoprint.org](https://get.octoprint.org). You would need to:
+* Backup your current install of OctoPrint using the built-in backup function
+* Flash OctoPi 0.17+ to your Raspberry Pi's SD card
+* Restore the backup into the new install
+
+**Note: OctoPi 0.17 comes with OctoPrint 1.3.12 - you will need to update to the same version (or greater) that your old install was before you can restore the backup**
+
+**You also need OctoPrint 1.4.0 or later for Python 3 compatibility**
+
+### Manual installs
+You can follow similar steps to the above for OctoPi, but you would have to re-install OctoPrint manually - which you may as well do on Python 3. As a result, this script is mostly usless to you if your system is old enough to not have Py 3.6+ installed!
 
 ## Limitations
-The script is unable to restore plugins that are not on the repository. If it cannot find the plugin listed it will list them to you and you should install them manually afterwards.
+* The script is unable to restore plugins that are not on the repository. If it cannot find the plugin listed it will list them to you and you should install them manually afterwards.
 
-Will not tell you if the plugins are not Python 3 compatible, you will have to check in the OctoPrint plugin manager afterwards to find incompatible ones.
+* Will not tell you if the plugins are not Python 3 compatible, you will have to check in the OctoPrint plugin manager afterwards to find incompatible ones.
 
 ## Contributing
 Please open an issue if you find something wrong, or have a feature request.
