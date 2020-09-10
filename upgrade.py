@@ -16,7 +16,8 @@
 
 # PYTHON 3 Check - this script can only run on Python 3
 import sys
-if sys.version_info.major != 3 and sys.version_info.minor < 6:
+if sys.version_info.major != 3 or ( sys.version_info.major == 3 and sys.version_info.minor < 6):
+    # Not Python 3, or not Python 3.6+
     print("This script will only run on python 3.6+")
     print("Run using 'python3 upgrade.py'")
     print("If you are on OctoPi 0.16 or earlier, then this script will not work for you - more details: https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported")
@@ -31,7 +32,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.0.3'
+SCRIPT_VERSION = '2.0.4'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
