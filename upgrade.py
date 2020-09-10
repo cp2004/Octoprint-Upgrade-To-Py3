@@ -19,7 +19,7 @@ import sys
 if sys.version_info.major != 3 and sys.version_info.minor < 6:
     print("This script will only run on python 3.6+")
     print("Run using 'python3 upgrade.py'")
-    print("If you are on OctoPi 0.16, please not that it is not CURRENTLY compatible, pay attention to the forum post and repo, we are working on a solution.")
+    print("If you are on OctoPi 0.16 or earlier, then this script will not work for you - more details: https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported")
     sys.exit(0)
 
 import os
