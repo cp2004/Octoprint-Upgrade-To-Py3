@@ -50,7 +50,7 @@ You can also download OctoPi 0.18 development builds, as these come with Python 
 
 **Note: OctoPi 0.17 comes with OctoPrint 1.3.12 - you will need to update to the same version (or greater) that your old install was before you can restore the backup**
 
-**You also need OctoPrint 1.4.0 or later for Python 3 compatibility**
+**You *also* need OctoPrint 1.4.0 or later for Python 3 compatibility, in addition to the other requirements.**
 
 ### Manual installs
 You can follow similar steps to the above for OctoPi, but you would have to re-install OctoPrint manually - which you may as well do on Python 3. As a result, this script is mostly usless to you if your system is old enough to not have Py 3.6+ installed!
