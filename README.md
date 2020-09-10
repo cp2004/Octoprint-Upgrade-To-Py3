@@ -12,7 +12,7 @@ A one time script to upgrade your OctoPrint installation from Python 2 to Python
 It is recommended that you use this with the plugin [Python 3 check](https://plugins.octoprint.org/plugins/Python3PluginCompatibilityCheck/) by [jneilliii](https://github.com/jneilliii) or from OctoPrint 1.4.1 this info is in the Plugin Manager to check that your plugins are compatible before using this script as any that are not Python 3 compatible will not work!
 Following commands will get you to Python 3:
 ```
-curl https://get.octoprint.org/py3/upgrade.py --output upgrade.py
+curl -L https://get.octoprint.org/py3/upgrade.py --output upgrade.py
 python3 upgrade.py
 ```
 **Warning: Only compatible with OctoPi 0.17 and OctoPi 0.18 (currently dev nightly) (& Debian Buster) Previous versions do not have sufficient Python 3 versions to run OctoPrint. [See more below](https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported)**
@@ -33,7 +33,7 @@ There are two command line options available, which you can use. Both optional :
 ## Returning to the old install
 The script saves your old environment at `path/to/env.bak` and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible, and you want to go back to Python 2.
 ```
-curl https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py --output go_back.py
+curl -L https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py --output go_back.py
 python3 upgrade.py
 ```
 
