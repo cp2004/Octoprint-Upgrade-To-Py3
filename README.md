@@ -34,7 +34,7 @@ There are two command line options available, which you can use. Both optional :
 The script saves your old environment at `path/to/env.bak` and you can use the other script in this repo, [go_back.py](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/blob/master/go_back.py) to return to the old install. Particularly useful if the install fails or some plugins are not Python 3 compatible, and you want to go back to Python 2.
 ```
 curl -L https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py --output go_back.py
-python3 upgrade.py
+python3 go_back.py
 ```
 
 ## What do I do if my system is not supported?
