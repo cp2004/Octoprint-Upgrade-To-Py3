@@ -280,7 +280,8 @@ def get_env_config(octopi):
         config_base = "/home/pi/.octoprint"
     else:
         print("Please provide the path to your virtual environment and the config directory of OctoPrint")
-        print("On OctoPi, this would be /home/pi/oprint and commands 'sudo service octoprint stop/start'")
+        print("On OctoPi, this would be `/home/pi/oprint` (venv), `/home/pi/.octoprint` (config)"
+              "and service commands commands `sudo service octoprint stop/start`")
         while not venv_path:
             try:
                 path = input("Path: ")
