@@ -32,7 +32,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.0.4'
+SCRIPT_VERSION = '2.1.0'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -69,10 +69,15 @@ parser.add_argument(
     action="store_true",
     help="Forces through any checks of confirm-to-go"
 )
+parser.add_argument(
+    '--iknowwhatimdoing',
+    action="store_true"
+)
 args = parser.parse_args()
 
 FORCE_CUSTOM = args.custom
 FORCE_CONFIRMS = args.force
+
 
 # ------------------
 # Useful utilities
@@ -157,6 +162,12 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
 # ---------------------
 # Actions to take. Roughly in order of execution in the script
 # ---------------------
+
+def confirm_no_root():
+    euid = os.geteuid()
+    return euid != 0
+
+
 def start_text():
     print("OctoPrint Upgrade to Py 3 (v{})\n".format(SCRIPT_VERSION))
     print("Hello!")
@@ -535,6 +546,13 @@ def end_text(venv_path):
 
 
 if __name__ == '__main__':
+    # This script **should not** be run as root unless you know **exactly** what you are doing
+    # Requires 
+    if not confirm_no_root() and not args.iknowwhatimdoing:
+        print_c("This script should not be run as root - please run as your standard user account  (no `sudo`!)", TextColors.YELLOW)
+        print_c("Please run the script as it says in the guides, using `python3 upgrade.py`", TextColors.YELLOW)
+        bail("Error: Should not be run as root, exiting")
+
     start_text()
     if not confirm_to_go():
         bail("Bye!")
