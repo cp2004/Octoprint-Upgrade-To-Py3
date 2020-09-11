@@ -371,16 +371,24 @@ def create_backup(venv_path, config_path):
 
 def read_plugins_from_backup(backup_path):
     # Load plugin list from zip
-    with zipfile.ZipFile(backup_path, 'r') as zip_ref:
-        try:
-            zip_ref.getinfo("plugin_list.json")
-        except KeyError:
-            # no plugin list
-            plugin_list = None
-        else:
-            # read in list
-            with zip_ref.open("plugin_list.json") as plugins:
-                plugin_list = json.load(plugins)
+    # Wrapped in a try block, to catch people who run as root and slip through the check
+    # so we can yell at them again
+    try:
+        with zipfile.ZipFile(backup_path, 'r') as zip_ref:
+            try:
+                zip_ref.getinfo("plugin_list.json")
+            except KeyError:
+                # no plugin list
+                plugin_list = None
+            else:
+                # read in list
+                with zip_ref.open("plugin_list.json") as plugins:
+                    plugin_list = json.load(plugins)
+    except FileNotFoundError:
+        print_c("Failed to read created backup & plugins list", TextColors.YELLOW)
+        print_c("If you ran this script using root (`sudo`), please make sure you don't, and run using `python3 upgrade.py`, as per the guide.")
+        bail("Error: Could not read backup")
+
 
     plugin_keys = []
     if plugin_list:
