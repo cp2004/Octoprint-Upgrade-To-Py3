@@ -16,7 +16,7 @@
 
 # PYTHON 3 Check - this script can only run on Python 3
 import sys
-if sys.version_info.major != 3 or ( sys.version_info.major == 3 and sys.version_info.minor < 6):
+if sys.version_info.major != 3 or (sys.version_info.major == 3 and sys.version_info.minor < 6):
     # Not Python 3, or not Python 3.6+
     print("This script will only run on python 3.6+")
     print("Run using 'python3 upgrade.py'")
@@ -32,7 +32,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.0'
+SCRIPT_VERSION = '2.1.1'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -70,6 +70,11 @@ parser.add_argument(
     help="Forces through any checks of confirm-to-go"
 )
 parser.add_argument(
+    '-d', '--debug',
+    action="store_true",
+    help="Prints absolutely everything to the terminal, useful for debugging failures"
+)
+parser.add_argument(
     '--iknowwhatimdoing',
     action="store_true"
 )
@@ -102,10 +107,13 @@ def run_sys_command(command, custom_parser=False, sudo=False):
         if output_line == '' and poll is not None:
             break
         if output_line:
-            if callable(custom_parser):
-                last_state = custom_parser(output_line, last_state)
-            if sudo and 'sudo' in output_line:
-                print(output_line, end="")
+            if not args.debug:
+                if callable(custom_parser):
+                    last_state = custom_parser(output_line, last_state)
+                if sudo and 'sudo' in output_line:
+                    print(output_line, end="")
+            else:
+                print(output_line)
             output.append(output_line)
 
     return output, poll
