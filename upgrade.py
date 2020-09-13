@@ -32,7 +32,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.1'
+SCRIPT_VERSION = '2.1.2'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -179,6 +179,7 @@ def confirm_no_root():
 
 def start_text():
     print("OctoPrint Upgrade to Py 3 (v{})\n".format(SCRIPT_VERSION))
+    print("DEVELOPMENT BUILD")
     print("Hello!")
     print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
     print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
