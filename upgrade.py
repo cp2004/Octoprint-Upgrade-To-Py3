@@ -98,11 +98,12 @@ def run_sys_command(command, custom_parser=False, sudo=False):
     output = []
     process = subprocess.Popen(
         command,
-        stdout=subprocess.PIPE
+        stdout=subprocess.PIPE,
+        encoding='utf-8'
     )
     last_state = None
     while True:
-        output_line = process.stdout.readline().decode('utf-8')
+        output_line = process.stdout.readline()  # .decode('utf-8')
         poll = process.poll()
         if output_line == '' and poll is not None:
             break
