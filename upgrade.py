@@ -534,7 +534,7 @@ def install_plugins(venv_path, plugin_keys, backup_path):
             print_c("Plugin {} successfully installed".format(plugin['name']), TextColors.GREEN)
             if plugin['id'] == 'bedlevelvisualizer':
                 print_c("Warning: You have installed Bed Level visualiser. There is a known issue with it failing silently on Python 3", TextColors.YELLOW)
-                print_c("See more here: https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/issues/213", TextColors.YELLOW)
+                print_c("See more here: https://github.com/jneilliii/OctoPrint-BedLevelVisualizer#known-issues", TextColors.YELLOW)
 
 
     if len(plugin_errors):

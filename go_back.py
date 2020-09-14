@@ -26,6 +26,7 @@ class TextStyles:
 print("OctoPrint upgrade to Python 3: go_back.py (v1.1)")
 print("This script will move your old installation back (Just in case!)")
 print("{}Only use it if you have used the upgrade script and it failed{}".format(TextColors.YELLOW, TextColors.RESET))
+print("Warning: There have been reports of this script failing, if it fails for you please report it to me as soon as possible. Thanks!")
 try:
     go = input("Press {}[enter]{} to continue, or ctrl-c to stop".format(TextColors.GREEN, TextColors.RESET))
 except KeyboardInterrupt:
