@@ -32,7 +32,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.3'
+SCRIPT_VERSION = '2.1.4'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -172,6 +172,9 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
 # ---------------------
 # Actions to take. Roughly in order of execution in the script
 # ---------------------
+
+def confirm_linux():
+    return sys.platform == 'linux'
 
 def confirm_no_root():
     euid = os.geteuid()
@@ -566,8 +569,13 @@ def end_text(venv_path):
 
 
 if __name__ == '__main__':
+    # Linux check needs to come as the *first* thing, rather than
+    if not confirm_linux():
+        print_c("Sorry, this script needs to be run on Linux :(", TextColors.YELLOW)
+        print_c("For other OSes, you can create a backup, create a new virtualenv & then restore the backup")
+        bail("Error: Non linux OS detected. Exiting...")
+        
     # This script **should not** be run as root unless you know **exactly** what you are doing
-    # Requires 
     if not confirm_no_root() and not args.iknowwhatimdoing:
         print_c("This script should not be run as root - please run as your standard user account  (no `sudo`!)", TextColors.YELLOW)
         print_c("Please run the script as it says in the guides, using `python3 upgrade.py`", TextColors.YELLOW)
