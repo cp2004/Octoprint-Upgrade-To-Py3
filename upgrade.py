@@ -572,9 +572,9 @@ if __name__ == '__main__':
     # Linux check needs to come as the *first* thing, rather than
     if not confirm_linux():
         print_c("Sorry, this script needs to be run on Linux :(", TextColors.YELLOW)
-        print_c("For other OSes, you can create a backup, create a new virtualenv & then restore the backup")
+        print_c("For other OSes (except Windows), you can create a backup, create a new virtualenv & then restore the backup. Backup & restore is not available on windows.")
         bail("Error: Non linux OS detected. Exiting...")
-        
+
     # This script **should not** be run as root unless you know **exactly** what you are doing
     if not confirm_no_root() and not args.iknowwhatimdoing:
         print_c("This script should not be run as root - please run as your standard user account  (no `sudo`!)", TextColors.YELLOW)
