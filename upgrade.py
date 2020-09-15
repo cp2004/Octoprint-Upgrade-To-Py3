@@ -397,7 +397,8 @@ def read_plugins_from_backup(backup_path):
                     plugin_list = json.load(plugins)
     except FileNotFoundError:
         print_c("Failed to read created backup & plugins list", TextColors.YELLOW)
-        print_c("If you ran this script using root (`sudo`), please make sure you don't, and run using `python3 upgrade.py`, as per the guide.")
+        print_c("If you ran this script using root (`sudo`), please make sure you don't, and run using `python3 upgrade.py`, as per the guide.", TextColors.YELLOW)
+        print_c("The other reason this may happen is if you are not running as the same user OctoPrint is installed as/runs under.", TextColors.YELLOW)
         bail("Error: Could not read backup")
 
 
