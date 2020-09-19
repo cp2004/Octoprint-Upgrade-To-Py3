@@ -341,10 +341,11 @@ def check_venv_python(venv_path):
     version_str, poll = get_python_version(venv_path)
     for line in version_str:
         # Debian has the python version set to 2.7.15+ which is not PEP440 compliant (bug 914072)
+        line = line.strip()
         if line.endswith("+"):
             line = line[:-1]
 
-        match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$", line.rstrip())
+        match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$", line)
         if match:
             major, minor, patch = match.group('major'), match.group('minor'), match.group('patch')
             if int(major) == 2:
