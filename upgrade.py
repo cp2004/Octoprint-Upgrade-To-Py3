@@ -32,7 +32,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.6'
+SCRIPT_VERSION = '2.1.7'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
