@@ -32,7 +32,7 @@ import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.7'
+SCRIPT_VERSION = '2.1.8'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -338,20 +338,26 @@ def get_env_config(octopi):
 
 
 def check_venv_python(venv_path):
-    version_str, poll = get_python_version(venv_path)
-    for line in version_str:
+    version_output, poll = get_python_version(venv_path)
+    for line in version_output:
         # Debian has the python version set to 2.7.15+ which is not PEP440 compliant (bug 914072)
         line = line.strip()
         if line.endswith("+"):
             line = line[:-1]
 
-        match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$", line)
-        if match:
-            major, minor, patch = match.group('major'), match.group('minor'), match.group('patch')
-            if int(major) == 2:
-                return True
-            elif int(major) == 3:
-                return False
+        match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?", line)
+        if match:  # This should catch the NoneType errors, but *just in case* it is here.
+            try:
+                major = match.group('major')
+                if int(major) == 2:
+                    return True
+                elif int(major) == 3:
+                    return False
+            except AttributeError:  # this line was not able to be parsed, we hand over to the next or say its not working
+                pass
+
+    print_c("Unable to parse Python version string. Please report to me the line below that has caused problems....")
+    print(version_output)
     return False
 
 
