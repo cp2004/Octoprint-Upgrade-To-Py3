@@ -87,7 +87,7 @@ FORCE_CONFIRMS = args.force
 # ------------------
 # Useful utilities
 # ------------------
-def print_c(msg, color, style=None, end='\n'):
+def print_c(msg, color=TextColors.YELLOW, style=None, end='\n'):
     if not style:
         print(color, msg, TextColors.RESET, sep="", end=end)
     else:
@@ -176,6 +176,7 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
 
 def confirm_linux():
     return sys.platform == 'linux'
+
 
 def confirm_no_root():
     euid = os.geteuid()
@@ -356,7 +357,7 @@ def check_venv_python(venv_path):
             except AttributeError:  # this line was not able to be parsed, we hand over to the next or say its not working
                 pass
 
-    print_c("Unable to parse Python version string. Please report to me the line below that has caused problems....")
+    print_c("Unable to parse Python version string. Please report to me the line below that has caused problems....", TextColors.YELLOW)
     print(version_output)
     return False
 
