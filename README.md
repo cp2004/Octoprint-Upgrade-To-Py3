@@ -1,6 +1,5 @@
 # Octoprint Upgrade To Python 3
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/110c98d760aa4e088fdf5a69adcbc4a9)](https://www.codacy.com/manual/cp2004/Octoprint-Upgrade-To-Py3?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cp2004/Octoprint-Upgrade-To-Py3&amp;utm_campaign=Badge_Grade)
-![Test migration](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/workflows/Test%20migration/badge.svg)
 
 A script to move an existing OctoPrint install from Python 2 to Python 3.
 Only compatible with OctoPi 0.17 and up since it (and OctoPrint Py3) requires Python 3.6+
