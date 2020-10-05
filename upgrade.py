@@ -31,7 +31,7 @@ import re
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.10'
+SCRIPT_VERSION = '2.1.11'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -430,6 +430,8 @@ def read_plugins_from_backup(backup_path):
         print("\nPlugins installed")
         for plugin in plugin_list:
             print("- {}".format(plugin['name']))
+            if plugin['key'] == "octolapse":
+                print_c("If there is an error above related to OctoLapse, please ignore, it makes no difference to operation :)", TextColors.YELLOW)
             plugin_keys.append(plugin['key'])
         print("If you think there is something missing from here, please check the list of plugins in Octoprint")
     else:
