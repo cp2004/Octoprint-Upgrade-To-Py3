@@ -276,19 +276,22 @@ def get_env_config(octopi):
                 path = input("Path: ")
             except KeyboardInterrupt:
                 bail("Bye!")
-            if os.path.isfile("{}/bin/python".format(path)):
-                valid = check_venv_python(path)
-                if valid:
-                    venv_path = path
-                    print_c("Path valid", TextColors.GREEN)
-                else:
-                    print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
-                            "Please try again", TextColors.YELLOW)
+            if not path:
+                print("Please enter a path!")
             else:
-                print_c("Invalid venv path, please try again", TextColors.YELLOW)
-            if path.endswith('/'):
-                print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
-                venv_path = None
+                if os.path.isfile("{}/bin/python".format(path)):
+                    valid = check_venv_python(path)
+                    if valid:
+                        venv_path = path
+                        print_c("Path valid", TextColors.GREEN)
+                    else:
+                        print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
+                                "Please try again", TextColors.YELLOW)
+                else:
+                    print_c("Invalid venv path, please try again", TextColors.YELLOW)
+                if path.endswith('/'):
+                    print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
+                    venv_path = None
 
         sys_commands['stop'] = "sudo service octoprint stop"
         sys_commands['start'] = "sudo service octoprint start"
@@ -302,30 +305,36 @@ def get_env_config(octopi):
                 path = input("Path: ")
             except KeyboardInterrupt:
                 bail("Bye!")
-            if os.path.isfile("{}/bin/python".format(path)):
-                valid = check_venv_python(path)
-                if valid:
-                    venv_path = path
-                    print_c("Path valid", TextColors.GREEN)
-                else:
-                    print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
-                            "Please try again", TextColors.YELLOW)
+            if not path:
+                print("Please enter a path!")
             else:
-                print_c("Invalid venv path, please try again", TextColors.YELLOW)
-            if path.endswith('/'):
-                print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
-                venv_path = None
+                if os.path.isfile("{}/bin/python".format(path)):
+                    valid = check_venv_python(path)
+                    if valid:
+                        venv_path = path
+                        print_c("Path valid", TextColors.GREEN)
+                    else:
+                        print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
+                                "Please try again", TextColors.YELLOW)
+                else:
+                    print_c("Invalid venv path, please try again", TextColors.YELLOW)
+                if path.endswith('/'):
+                    print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
+                    venv_path = None
 
         while not config_base:
             try:
                 conf = input("Config directory: ")
             except KeyboardInterrupt:
                 bail("Bye!")
-            if os.path.isfile(os.path.join(conf, 'config.yaml')):
-                print_c("Config directory valid", TextColors.GREEN)
-                config_base = conf
+            if not conf:
+                print("Please enter a path!")
             else:
-                print_c("Invalid path, please try again", TextColors.RED)
+                if os.path.isfile(os.path.join(conf, 'config.yaml')):
+                    print_c("Config directory valid", TextColors.GREEN)
+                    config_base = conf
+                else:
+                    print_c("Invalid path, please try again", TextColors.RED)
 
         print("\nTo do the install, we need the service stop and start commands. "
               "(Leave blank if you don't have a service set up)")
