@@ -28,7 +28,6 @@ import json
 import subprocess
 import zipfile
 import re
-import time
 import argparse
 
 # CONSTANTS
@@ -136,7 +135,6 @@ def get_python_version(venv_path):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    last_state = None
     while True:
         output_line_stderr = process.stderr.readline().decode('utf-8')
         poll = process.poll()
@@ -159,7 +157,7 @@ def cleanup(path_to_zipfile):
 
 
 def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
-    """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which"""
+    """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which."""
     print(msg)
     if FORCE_CONFIRMS:
         return True
