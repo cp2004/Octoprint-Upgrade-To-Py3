@@ -4,6 +4,9 @@
 A script to move an existing OctoPrint install from Python 2 to Python 3.
 Only compatible with OctoPi 0.17 and up since it (and OctoPrint Py3) requires Python 3.6+
 
+## Blog post
+I wrote a blog post about this on the OctoPrint blog: [Upgrade Your OctoPrint Install to Python 3!](https://octoprint.org/blog/2020/09/10/upgrade-to-py3/)
+
 ---
 ## Usage
 A one time script to upgrade your OctoPrint installation from Python 2 to Python 3
