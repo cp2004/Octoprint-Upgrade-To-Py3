@@ -1,0 +1,4 @@
+contact_links:
+  - name: No bugs to report? Please get in touch on the forums!
+    url: https://community.octoprint.org/t/upgrade-your-octoprint-install-to-python-3/23973
+    about: This tracker is reserved for bugs or problems running the script, for all other queries please head to the forums. If there is a bug, we'll direct you back here to report it.
