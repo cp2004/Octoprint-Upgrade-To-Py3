@@ -1,7 +1,7 @@
 ---
 name: Bug report
-about: Found a bug? Use this
-title: "[Bug] Describe your bug"
+about: Got a bug to report? Use this. 
+title: "[Bug]"
 labels: bug
 assignees: ''
 
@@ -11,13 +11,13 @@ assignees: ''
 <!-- A clear and concise description of what the bug is please! -->
 
 **Script output**
-Please paste the output of the script in the box below:
+Please paste the ***complete*** output of the script in the box below:
 ```
 HERE
 ```
 
 **Script version**
-Printed at the very top of the script
+You can find this printed in the first line of the script
 
 **OctoPrint Version**
 OctoPrint 1.().()
