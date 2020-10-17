@@ -27,6 +27,17 @@ If you are not running OctoPi, you will be prompted to provide:
 
 You may also be asked to provide the `sudo` password so the script can install `python3-dev`, a package required to install some plugins. (If your machine is not running passwordless sudo)
 
+## Supported Platforms
+* Linux only
+* If OctoPi: **OctoPi 0.17** or greater. Due to Python dependency below
+* Requires **Python 3.6** or greater installed under `python3`
+* **OctoPrint 1.4.0** or greater, for Python 3 compatibility
+* Requires OctoPrint to be installed in a **virtual environment** (as the official guides explain.)
+
+Note that this is **not compatible** with the [OctoPrint Docker Image](https://github.com/OctoPrint/octoprint-docker), which also is now Python 3 by default, so just updating that should be sufficient.
+
+See below for '[What do I do if my system is not supported?](https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported)'
+
 ## Command line options
 There are two command line options available, which you can use. Both optional :-
 1. `-f` or `--force`: Forces through any 'confirmations' where you would have to press enter to continue. Note that you may still need to enter your config or sudo password.
@@ -47,12 +58,10 @@ Currently the recommended way to get your install running on Python 3, is to dow
 * Backup your current install of OctoPrint using the built-in backup function
 * Flash OctoPi 0.17+ to your Raspberry Pi's SD card
 * Restore the backup into the new install
+* **Note: OctoPi 0.17 comes with OctoPrint 1.3.12 - you will need to update to the same version (or greater) that your old install was before you can restore the backup**
+* Then run the script, and enjoy life on Python 3!
 
 You can also download OctoPi 0.18 development builds, as these come with Python 3 environments pre-installed. **Only do this if you are comfortable with development builds!**
-
-**Note: OctoPi 0.17 comes with OctoPrint 1.3.12 - you will need to update to the same version (or greater) that your old install was before you can restore the backup**
-
-**You *also* need OctoPrint 1.4.0 or later for Python 3 compatibility, in addition to the other requirements.**
 
 ### Manual installs
 You can follow similar steps to the above for OctoPi, but you would have to re-install OctoPrint manually - which you may as well do on Python 3. As a result, this script is mostly usless to you if your system is old enough to not have Py 3.6+ installed!
