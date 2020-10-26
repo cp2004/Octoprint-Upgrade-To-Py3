@@ -27,6 +27,10 @@ If you are not running OctoPi, you will be prompted to provide:
 
 You may also be asked to provide the `sudo` password so the script can install `python3-dev`, a package required to install some plugins. (If your machine is not running passwordless sudo)
 
+**Once the install has finished** (and you have tested it works, of course) you can safely remove the folder `/path/to/venv.bak` containing your old Python 2 environment. 
+
+Under OctoPi, this is under `~/oprint.bak`
+
 ## Supported Platforms
 * Linux only
 * If OctoPi: **OctoPi 0.17** or greater. Due to Python dependency below
