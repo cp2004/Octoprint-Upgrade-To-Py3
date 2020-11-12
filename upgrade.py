@@ -31,7 +31,7 @@ import re
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.11'
+SCRIPT_VERSION = '2.1.12'
 LATEST_OCTOPRINT = '1.4.2'
 
 BASE = '\033['
@@ -244,9 +244,15 @@ def test_octoprint_version(venv_path):
     if exit_code != 0 or not output:
         bail("Failed to find OctoPrint install\n"
              "If you are not on OctoPi, please check you entered the correct path to your virtual environment")
-    version_no = re.search(r"(?<=version )(.*)", output[0]).group().split('.')
+    version = re.search(r"(?<=version )(.*)", output[0]).group()
+    version_no = version.split('.')
     print("OctoPrint version: {}.{}.{}".format(version_no[0], version_no[1], version_no[2]))
     if int(version_no[0]) >= 1 and int(version_no[1]) >= 4:
+        if "1.5.0rc1" in version:
+            print_c("Unfortunately OctoPrint 1.5.0rc1 has a bug that prevents using the backup plugin's CLI.\n"
+                    + "This is fixed in later releases, so please either update to a newer release, or use OctoPrint 1.4.2\n"
+                    + "Since this prevents any further action, this script will now exit", TextColors.YELLOW)
+            bail("Fatal error: bug in OctoPrint preventing continue. Exiting...")
         return True
     else:
         # This is not strictly needed, but since I am only testing this against OctoPrint 1.4.0 or later
