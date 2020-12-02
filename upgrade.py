@@ -32,7 +32,7 @@ import argparse
 
 # CONSTANTS
 SCRIPT_VERSION = '2.1.12'
-LATEST_OCTOPRINT = '1.4.2'
+LATEST_OCTOPRINT = '1.5.0'
 
 BASE = '\033['
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
