@@ -418,6 +418,24 @@ def read_plugins_from_backup(backup_path):
 
     return plugin_keys
 
+def check_python3_dev(backup_path):
+    print("Checking package list for python3-dev")
+    output, poll = run_sys_command(['dpkg-query', '-l'], sudo=False)
+    if poll != 0:
+        print_c("ERROR: failed to list installed packages", TextColors.RED)
+        print("Please try manually")
+        cleanup(backup_path)
+        bail("Fatal error: Exiting")
+
+    else:
+        for line in output:
+            if line.startswith ('python3-dev',4):
+                print_c(line, TextColors.GREEN)
+                print_c("Successfully checked python3-dev", TextColors.GREEN)
+                return
+
+    print_c("python3-dev not installed, proceeding to install", TextColors.YELLOW)
+    install_python3_dev(backup_path)
 
 def install_python3_dev(backup_path):
     print("Root access is required to install python3-dev, please fill in the password prompt if shown")
@@ -593,9 +611,10 @@ if __name__ == '__main__':
     backup_location = create_backup(path_to_venv, config_dir)
     plugin_keys = read_plugins_from_backup(backup_location)
 
-    # Install python3-dev
+    # Check for python3-dev
     # backup_location is passed to these so that they can clean up in the event of an error
-    install_python3_dev(backup_location)
+    # If python3-dev is not present, try to install it
+    check_python3_dev(backup_location)
 
     # Install OctoPrint
     if commands['stop']:
