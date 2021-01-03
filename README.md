@@ -1,9 +1,11 @@
 # Octoprint Upgrade To Python 3
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/110c98d760aa4e088fdf5a69adcbc4a9)](https://www.codacy.com/manual/cp2004/Octoprint-Upgrade-To-Py3?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cp2004/Octoprint-Upgrade-To-Py3&amp;utm_campaign=Badge_Grade)
-![Test migration](https://github.com/cp2004/Octoprint-Upgrade-To-Py3/workflows/Test%20migration/badge.svg)
 
 A script to move an existing OctoPrint install from Python 2 to Python 3.
 Only compatible with OctoPi 0.17 and up since it (and OctoPrint Py3) requires Python 3.6+
+
+## Blog post
+**For a full explanation of why this script is here, please make sure to read the blog post** I wrote about this on the OctoPrint blog: [Upgrade Your OctoPrint Install to Python 3!](https://octoprint.org/blog/2020/09/10/upgrade-to-py3/)
 
 ---
 ## Usage
@@ -25,6 +27,21 @@ If you are not running OctoPi, you will be prompted to provide:
 
 You may also be asked to provide the `sudo` password so the script can install `python3-dev`, a package required to install some plugins. (If your machine is not running passwordless sudo)
 
+**Once the install has finished** (and you have tested it works, of course) you can safely remove the folder `/path/to/venv.bak` containing your old Python 2 environment. 
+
+Under OctoPi, this is under `~/oprint.bak`
+
+## Supported Platforms
+* Linux only
+* If OctoPi: **OctoPi 0.17** or greater. Due to Python dependency below
+* Requires **Python 3.6** or greater installed under `python3`
+* **OctoPrint 1.4.0** or greater, for Python 3 compatibility
+* Requires OctoPrint to be installed in a **virtual environment** (as the official guides explain.)
+
+Note that this is **not compatible** with the [OctoPrint Docker Image](https://github.com/OctoPrint/octoprint-docker), which also is now Python 3 by default, so just updating that should be sufficient.
+
+See below for '[What do I do if my system is not supported?](https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported)'
+
 ## Command line options
 There are two command line options available, which you can use. Both optional :-
 1. `-f` or `--force`: Forces through any 'confirmations' where you would have to press enter to continue. Note that you may still need to enter your config or sudo password.
@@ -45,12 +62,10 @@ Currently the recommended way to get your install running on Python 3, is to dow
 * Backup your current install of OctoPrint using the built-in backup function
 * Flash OctoPi 0.17+ to your Raspberry Pi's SD card
 * Restore the backup into the new install
+* **Note: OctoPi 0.17 comes with OctoPrint 1.3.12 - you will need to update to the same version (or greater) that your old install was before you can restore the backup**
+* Then run the script, and enjoy life on Python 3!
 
 You can also download OctoPi 0.18 development builds, as these come with Python 3 environments pre-installed. **Only do this if you are comfortable with development builds!**
-
-**Note: OctoPi 0.17 comes with OctoPrint 1.3.12 - you will need to update to the same version (or greater) that your old install was before you can restore the backup**
-
-**You *also* need OctoPrint 1.4.0 or later for Python 3 compatibility, in addition to the other requirements.**
 
 ### Manual installs
 You can follow similar steps to the above for OctoPi, but you would have to re-install OctoPrint manually - which you may as well do on Python 3. As a result, this script is mostly usless to you if your system is old enough to not have Py 3.6+ installed!

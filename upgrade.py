@@ -28,12 +28,11 @@ import json
 import subprocess
 import zipfile
 import re
-import time
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.2'
-LATEST_OCTOPRINT = '1.4.2'
+SCRIPT_VERSION = '2.1.12'
+LATEST_OCTOPRINT = '1.5.2'
 
 BASE = '\033['
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
@@ -87,7 +86,7 @@ FORCE_CONFIRMS = args.force
 # ------------------
 # Useful utilities
 # ------------------
-def print_c(msg, color, style=None, end='\n'):
+def print_c(msg, color=TextColors.YELLOW, style=None, end='\n'):
     if not style:
         print(color, msg, TextColors.RESET, sep="", end=end)
     else:
@@ -136,7 +135,6 @@ def get_python_version(venv_path):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    last_state = None
     while True:
         output_line_stderr = process.stderr.readline().decode('utf-8')
         poll = process.poll()
@@ -146,6 +144,7 @@ def get_python_version(venv_path):
             output.append(output_line_stderr)
 
     return output, poll
+
 
 def bail(msg):
     print_c(msg, TextColors.RED)
@@ -158,7 +157,7 @@ def cleanup(path_to_zipfile):
 
 
 def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
-    """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which"""
+    """Waits for user to press enter(True) or ctrl-c(False), then returns bool of which."""
     print(msg)
     if FORCE_CONFIRMS:
         return True
@@ -173,6 +172,10 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
 # Actions to take. Roughly in order of execution in the script
 # ---------------------
 
+def confirm_linux():
+    return sys.platform == 'linux'
+
+
 def confirm_no_root():
     euid = os.geteuid()
     return euid != 0
@@ -180,7 +183,6 @@ def confirm_no_root():
 
 def start_text():
     print("OctoPrint Upgrade to Py 3 (v{})\n".format(SCRIPT_VERSION))
-    print("DEVELOPMENT BUILD")
     print("Hello!")
     print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
     print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
@@ -242,9 +244,15 @@ def test_octoprint_version(venv_path):
     if exit_code != 0 or not output:
         bail("Failed to find OctoPrint install\n"
              "If you are not on OctoPi, please check you entered the correct path to your virtual environment")
-    version_no = re.search(r"(?<=version )(.*)", output[0]).group().split('.')
+    version = re.search(r"(?<=version )(.*)", output[0]).group()
+    version_no = version.split('.')
     print("OctoPrint version: {}.{}.{}".format(version_no[0], version_no[1], version_no[2]))
     if int(version_no[0]) >= 1 and int(version_no[1]) >= 4:
+        if "1.5.0rc1" in version:
+            print_c("Unfortunately OctoPrint 1.5.0rc1 has a bug that prevents using the backup plugin's CLI.\n"
+                    + "This is fixed in later releases, so please either update to a newer release, or use OctoPrint 1.4.2\n"
+                    + "Since this prevents any further action, this script will now exit", TextColors.YELLOW)
+            bail("Fatal error: bug in OctoPrint preventing continue. Exiting...")
         return True
     else:
         # This is not strictly needed, but since I am only testing this against OctoPrint 1.4.0 or later
@@ -272,19 +280,22 @@ def get_env_config(octopi):
                 path = input("Path: ")
             except KeyboardInterrupt:
                 bail("Bye!")
-            if os.path.isfile("{}/bin/python".format(path)):
-                valid = check_venv_python(path)
-                if valid:
-                    venv_path = path
-                    print_c("Path valid", TextColors.GREEN)
-                else:
-                    print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
-                            "Please try again", TextColors.YELLOW)
+            if not path:
+                print("Please enter a path!")
             else:
-                print_c("Invalid venv path, please try again", TextColors.YELLOW)
-            if path.endswith('/'):
-                print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
-                venv_path = None
+                if os.path.isfile("{}/bin/python".format(path)):
+                    valid = check_venv_python(path)
+                    if valid:
+                        venv_path = path
+                        print_c("Path valid", TextColors.GREEN)
+                    else:
+                        print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
+                                "Please try again", TextColors.YELLOW)
+                else:
+                    print_c("Invalid venv path, please try again", TextColors.YELLOW)
+                if path.endswith('/'):
+                    print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
+                    venv_path = None
 
         sys_commands['stop'] = "sudo service octoprint stop"
         sys_commands['start'] = "sudo service octoprint start"
@@ -298,30 +309,36 @@ def get_env_config(octopi):
                 path = input("Path: ")
             except KeyboardInterrupt:
                 bail("Bye!")
-            if os.path.isfile("{}/bin/python".format(path)):
-                valid = check_venv_python(path)
-                if valid:
-                    venv_path = path
-                    print_c("Path valid", TextColors.GREEN)
-                else:
-                    print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
-                            "Please try again", TextColors.YELLOW)
+            if not path:
+                print("Please enter a path!")
             else:
-                print_c("Invalid venv path, please try again", TextColors.YELLOW)
-            if path.endswith('/'):
-                print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
-                venv_path = None
+                if os.path.isfile("{}/bin/python".format(path)):
+                    valid = check_venv_python(path)
+                    if valid:
+                        venv_path = path
+                        print_c("Path valid", TextColors.GREEN)
+                    else:
+                        print_c("Virtual environment is already Python 3, are you sure you need an upgrade?\n"
+                                "Please try again", TextColors.YELLOW)
+                else:
+                    print_c("Invalid venv path, please try again", TextColors.YELLOW)
+                if path.endswith('/'):
+                    print_c("Please enter your path without a trailing slash", TextColors.YELLOW)
+                    venv_path = None
 
         while not config_base:
             try:
                 conf = input("Config directory: ")
             except KeyboardInterrupt:
                 bail("Bye!")
-            if os.path.isfile(os.path.join(conf, 'config.yaml')):
-                print_c("Config directory valid", TextColors.GREEN)
-                config_base = conf
+            if not conf:
+                print("Please enter a path!")
             else:
-                print_c("Invalid path, please try again", TextColors.RED)
+                if os.path.isfile(os.path.join(conf, 'config.yaml')):
+                    print_c("Config directory valid", TextColors.GREEN)
+                    config_base = conf
+                else:
+                    print_c("Invalid path, please try again", TextColors.RED)
 
         print("\nTo do the install, we need the service stop and start commands. "
               "(Leave blank if you don't have a service set up)")
@@ -335,15 +352,26 @@ def get_env_config(octopi):
 
 
 def check_venv_python(venv_path):
-    version_str, poll = get_python_version(venv_path)
-    for line in version_str:
-        match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$", line.rstrip())
-        if match:
-            major, minor, patch = match.group('major'), match.group('minor'), match.group('patch')
-            if int(major) == 2:
-                return True
-            elif int(major) == 3:
-                return False
+    version_output, poll = get_python_version(venv_path)
+    for line in version_output:
+        # Debian has the python version set to 2.7.15+ which is not PEP440 compliant (bug 914072)
+        line = line.strip()
+        if line.endswith("+"):
+            line = line[:-1]
+
+        match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?", line)
+        if match:  # This should catch the NoneType errors, but *just in case* it is here.
+            try:
+                major = match.group('major')
+                if int(major) == 2:
+                    return True
+                elif int(major) == 3:
+                    return False
+            except AttributeError:  # this line was not able to be parsed, we hand over to the next or say its not working
+                pass
+
+    print_c("Unable to parse Python version string. Please report to me the line below that has caused problems....", TextColors.YELLOW)
+    print(version_output)
     return False
 
 
@@ -398,7 +426,8 @@ def read_plugins_from_backup(backup_path):
                     plugin_list = json.load(plugins)
     except FileNotFoundError:
         print_c("Failed to read created backup & plugins list", TextColors.YELLOW)
-        print_c("If you ran this script using root (`sudo`), please make sure you don't, and run using `python3 upgrade.py`, as per the guide.")
+        print_c("If you ran this script using root (`sudo`), please make sure you don't, and run using `python3 upgrade.py`, as per the guide.", TextColors.YELLOW)
+        print_c("The other reason this may happen is if you are not running as the same user OctoPrint is installed as/runs under.", TextColors.YELLOW)
         bail("Error: Could not read backup")
 
 
@@ -407,6 +436,8 @@ def read_plugins_from_backup(backup_path):
         print("\nPlugins installed")
         for plugin in plugin_list:
             print("- {}".format(plugin['name']))
+            if plugin['key'] == "octolapse":
+                print_c("If there is an error above related to OctoLapse, please ignore, it makes no difference to operation :)", TextColors.YELLOW)
             plugin_keys.append(plugin['key'])
         print("If you think there is something missing from here, please check the list of plugins in Octoprint")
     else:
@@ -553,7 +584,7 @@ def install_plugins(venv_path, plugin_keys, backup_path):
             print_c("Plugin {} successfully installed".format(plugin['name']), TextColors.GREEN)
             if plugin['id'] == 'bedlevelvisualizer':
                 print_c("Warning: You have installed Bed Level visualiser. There is a known issue with it failing silently on Python 3", TextColors.YELLOW)
-                print_c("See more here: https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/issues/213", TextColors.YELLOW)
+                print_c("See more here: https://github.com/jneilliii/OctoPrint-BedLevelVisualizer#known-issues", TextColors.YELLOW)
 
 
     if len(plugin_errors):
@@ -584,8 +615,13 @@ def end_text(venv_path):
 
 
 if __name__ == '__main__':
+    # Linux check needs to come as the *first* thing, rather than
+    if not confirm_linux():
+        print_c("Sorry, this script needs to be run on Linux :(", TextColors.YELLOW)
+        print_c("For other OSes (except Windows), you can create a backup, create a new virtualenv & then restore the backup. Backup & restore is not available on windows.")
+        bail("Error: Non linux OS detected. Exiting...")
+
     # This script **should not** be run as root unless you know **exactly** what you are doing
-    # Requires 
     if not confirm_no_root() and not args.iknowwhatimdoing:
         print_c("This script should not be run as root - please run as your standard user account  (no `sudo`!)", TextColors.YELLOW)
         print_c("Please run the script as it says in the guides, using `python3 upgrade.py`", TextColors.YELLOW)
