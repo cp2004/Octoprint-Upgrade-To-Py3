@@ -461,7 +461,6 @@ def check_python3_dev(backup_path):
     else:
         for line in output:
             if line.startswith ('python3-dev',4):
-                print_c(line, TextColors.GREEN)
                 print_c("Successfully checked python3-dev", TextColors.GREEN)
                 return
 
