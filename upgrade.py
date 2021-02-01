@@ -1,5 +1,5 @@
 #    OctoPrint Upgrade To Python 3: Move an existing install over from py2 to 3
-#    Copyright (C) 2020 Charlie Powell
+#    Copyright (C) 2020-2021 Charlie Powell
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
