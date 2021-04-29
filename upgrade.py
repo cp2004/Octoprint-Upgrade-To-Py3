@@ -187,7 +187,7 @@ def start_text():
     print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
     print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
     print_c("and it will disrupt any ongoing print jobs.", TextColors.RED, TextStyles.BRIGHT)
-    print("\nIt will install the latest version of OctoPrint ({}) and all plugins.".format(LATEST_OCTOPRINT))
+    print("\nIt will install the latest version of OctoPrint and all plugins.")
     print("No configuration or other files will be overwritten\n")
 
 
