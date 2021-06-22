@@ -31,7 +31,7 @@ import re
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.13'
+SCRIPT_VERSION = '2.1.14-dev1'
 LATEST_OCTOPRINT = '1.5.3'
 
 BASE = '\033['
@@ -387,7 +387,7 @@ def create_backup(venv_path, config_path):
     """
     print("Reading installed plugins...")
 
-    command = ["{}/bin/python".format(venv_path), "-m", "octoprint", "plugins", "backup:backup", "--exclude",
+    command = ["{}/bin/python".format(venv_path), "-m", "octoprint", "--basedir", config_path, "plugins", "backup:backup", "--exclude",
                "timelapse", "--exclude", "uploads"]
     output, poll = run_sys_command(command)
     if poll != 0:
