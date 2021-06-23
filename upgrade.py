@@ -31,7 +31,7 @@ import re
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.1.14-dev1'
+SCRIPT_VERSION = '2.1.14'
 LATEST_OCTOPRINT = '1.5.3'
 
 BASE = '\033['
