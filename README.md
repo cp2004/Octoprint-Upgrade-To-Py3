@@ -29,7 +29,7 @@ This is the easiest way to upgrade if you are using OctoPi, since you can re-fla
 
 ### Requirements
 
-* Python 3.6+ installed as `python3` on the system
+* Python 3.6+ **installed as `python3`** on the system
 * Linux install
 * OctoPrint 1.4.0+ for Python 3 compatibility.
   **Note**: The script will install the latest stable version of OctoPrint when you run it.
