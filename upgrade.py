@@ -180,6 +180,12 @@ def confirm_no_root():
     euid = os.geteuid()
     return euid != 0
 
+def check_requests():
+    try:
+        import requests
+        return True
+    except ImportError:
+        return False
 
 def start_text():
     print("OctoPrint Upgrade to Py 3 (v{})\n".format(SCRIPT_VERSION))
@@ -625,6 +631,13 @@ if __name__ == '__main__':
         print_c("This script should not be run as root - please run as your standard user account  (no `sudo`!)", TextColors.YELLOW)
         print_c("Please run the script as it says in the guides, using `python3 upgrade.py`", TextColors.YELLOW)
         bail("Error: Should not be run as root, exiting")
+
+    if not check_requests():
+        print_c("The requests dependency is not installed - without this, no plugins are able to be installed.", TextColors.YELLOW)
+        print("You may need to install it with `python3 -m pip install requests` or similar.")
+        print_c("Do you still wish to continue?", TextColors.YELLOW)
+        if not confirm_to_go():
+            bail("Bye!")
 
     start_text()
     if not confirm_to_go():
