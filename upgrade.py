@@ -518,7 +518,7 @@ def create_new_venv(venv_path, backup_path):
     output, poll = run_sys_command(['mv', venv_path, '{}.bak'.format(venv_path)])
     if poll != 0:
         failed(backup_path, "Could not move existing env out of the way\nPlease check you don't have anything at {}.bak".format(venv_path))
-    output, poll = run_sys_command(['python', '-m', 'virtualenv', '--python=/usr/bin/python3', venv_path])
+    output, poll = run_sys_command(['python3', '-m', 'venv', venv_path])
     if poll != 0:
         failed(backup_path, "Could not create new venv")
 
