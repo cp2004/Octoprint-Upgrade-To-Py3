@@ -18,9 +18,9 @@
 import sys
 if sys.version_info.major != 3 or (sys.version_info.major == 3 and sys.version_info.minor < 6):
     # Not Python 3, or not Python 3.6+
-    print("This script will only run on python 3.6+")
-    print("Run using 'python3 upgrade.py'")
-    print("If you are on OctoPi 0.16 or earlier, then this script will not work for you - more details: https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported")
+    print("This script requires running using Python 3.6+")
+    print("Please run using 'python3 upgrade.py'")
+    print("Please check the system requirements at https://github.com/cp2004/Octoprint-Upgrade-To-Py3#requirements")
     sys.exit(0)
 
 import os
@@ -33,12 +33,12 @@ import argparse
 # CONSTANTS
 SCRIPT_VERSION = '2.1.14'
 LATEST_OCTOPRINT = '1.5.3'
-
-BASE = '\033['
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
 
+# Coloured text constants & classes
+BASE = '\033['
 
-# Base classes, used throughout the script
+
 class TextColors:
     RESET = BASE + '39m'
     RED = BASE + '31m'
@@ -55,14 +55,13 @@ class TextStyles:
 # Command line argument setup
 # Sets necessary flags that the rest of the script can access
 # ------------------
-
 parser = argparse.ArgumentParser(
     description="Upgrade your Python 2 OctoPrint install to Python 3")
 parser.add_argument(
     '-c', '--custom',
     action="store_true",
     help="Overrides OctoPi check, allows specifying custom env config",
-    )
+)
 parser.add_argument(
     '-f', '--force',
     action="store_true",
@@ -122,7 +121,8 @@ def run_sys_command(command, custom_parser=False, sudo=False):
 
 def get_python_version(venv_path):
     """
-    For some reason, running `python --version` logs to stdout... So we will handle accordingly
+    For some reason, running `python --version` prints the version number
+    to stderr, so we will handle accordingly
     Runs system command `python --version` and returns output
 
     Returns:
@@ -136,7 +136,7 @@ def get_python_version(venv_path):
         stderr=subprocess.PIPE
     )
     while True:
-        output_line_stderr = process.stderr.readline().decode('utf-8')
+        output_line_stderr = process.stderr.readline().decode('utf-8', errors='replace')
         poll = process.poll()
         if output_line_stderr == '' and process.poll() is not None:
             break
@@ -180,16 +180,17 @@ def confirm_no_root():
     euid = os.geteuid()
     return euid != 0
 
+
 def check_requests():
     try:
-        import requests
+        import requests  # noqa
         return True
     except ImportError:
         return False
 
+
 def start_text():
     print("OctoPrint Upgrade to Py 3 (v{})\n".format(SCRIPT_VERSION))
-    print("Hello!")
     print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
     print_c("This script requires an internet connection ", TextColors.YELLOW, end='')  # These will print on same line
     print_c("and it will disrupt any ongoing print jobs.", TextColors.RED, TextStyles.BRIGHT)
@@ -211,7 +212,7 @@ def get_sys_info():
             if not valid:
                 print_c("Your OctoPi install does not support upgrading OctoPrint to Python 3 - "
                         "Please upgrade your install.", TextColors.RED)
-                print_c("Details: https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported", TextColors.YELLOW)  # TODO Link to some kind of FAQ about what to do
+                print_c("Details: https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported", TextColors.YELLOW)
             octopi = True
         else:
             octopi = False
@@ -230,7 +231,7 @@ def validate_octopi_ver():
         for line in version_file:
             if line:  # Make sure the line is not empty - who knows what might be there
                 try:
-                    major, minor, patch = line.split(".")  # TODO use regex for this... .split is too unreliable
+                    major, minor, patch = line.split(".")
                 except Exception as e:
                     if not major or not minor or not major:
                         print("Problem accessing OctoPi version number, falling back to manual input")
@@ -255,9 +256,11 @@ def test_octoprint_version(venv_path):
     print("OctoPrint version: {}.{}.{}".format(version_no[0], version_no[1], version_no[2]))
     if int(version_no[0]) >= 1 and int(version_no[1]) >= 4:
         if "1.5.0rc1" in version:
-            print_c("Unfortunately OctoPrint 1.5.0rc1 has a bug that prevents using the backup plugin's CLI.\n"
-                    + "This is fixed in later releases, so please either update to a newer release, or use OctoPrint 1.4.2\n"
-                    + "Since this prevents any further action, this script will now exit", TextColors.YELLOW)
+            print_c(
+                """Unfortunately OctoPrint 1.5.0rc1 has a bug that prevents using the backup plugin's CLI.
+This is fixed in later releases, so please either update to a newer release, or use OctoPrint 1.4.2
+Since this prevents any further action, this script will now exit""",
+                TextColors.YELLOW)
             bail("Fatal error: bug in OctoPrint preventing continue. Exiting...")
         return True
     else:
@@ -436,7 +439,6 @@ def read_plugins_from_backup(backup_path):
         print_c("The other reason this may happen is if you are not running as the same user OctoPrint is installed as/runs under.", TextColors.YELLOW)
         bail("Error: Could not read backup")
 
-
     plugin_keys = []
     if plugin_list:
         print("\nPlugins installed")
@@ -445,7 +447,7 @@ def read_plugins_from_backup(backup_path):
             if plugin['key'] == "octolapse":
                 print_c("If there is an error above related to OctoLapse, please ignore, it makes no difference to operation :)", TextColors.YELLOW)
             plugin_keys.append(plugin['key'])
-        print("If you think there is something missing from here, please check the list of plugins in Octoprint")
+        print("If you think there is something missing from here, please check the list of plugins in OctoPrint")
     else:
         print_c("No plugins found", TextColors.YELLOW)
         print("If you think this is an error, please ask for help. Note this doesn't include bundled plugins.")
@@ -454,6 +456,7 @@ def read_plugins_from_backup(backup_path):
         bail("Bye!")
 
     return plugin_keys
+
 
 def check_python3_dev(backup_path):
     print("Checking package list for python3-dev")
@@ -466,12 +469,13 @@ def check_python3_dev(backup_path):
 
     else:
         for line in output:
-            if line.startswith ('python3-dev',4):
+            if line.startswith('python3-dev', 4):
                 print_c("Successfully checked python3-dev", TextColors.GREEN)
                 return
 
     print_c("python3-dev not installed, proceeding to install", TextColors.YELLOW)
     install_python3_dev(backup_path)
+
 
 def install_python3_dev(backup_path):
     print("Root access is required to install python3-dev, please fill in the password prompt if shown")
@@ -591,7 +595,6 @@ def install_plugins(venv_path, plugin_keys, backup_path):
                 print_c("Warning: You have installed Bed Level visualiser. There is a known issue with it failing silently on Python 3", TextColors.YELLOW)
                 print_c("See more here: https://github.com/jneilliii/OctoPrint-BedLevelVisualizer#known-issues", TextColors.YELLOW)
 
-
     if len(plugin_errors):
         print_c("Failed to install these plugins:", TextColors.YELLOW)
         for plugin in plugin_errors:
@@ -616,7 +619,7 @@ def end_text(venv_path):
     print_c("Finished! OctoPrint should be ready to go", TextColors.GREEN)
     print("Once you have verified the install works, you can safely remove the folder {}.bak".format(venv_path))
     print("If you want to go back (If it doesn't work) to Python 2 download the file at: ")
-    print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")  # TODO Point to tagged release point, to prevent confusion.
+    print("https://raw.githubusercontent.com/cp2004/Octoprint-Upgrade-To-Py3/master/go_back.py")
 
 
 if __name__ == '__main__':
