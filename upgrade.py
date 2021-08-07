@@ -531,6 +531,13 @@ def create_new_venv(venv_path, backup_path):
 
     print_c("Successfully created Python 3 environment at {}".format(venv_path), TextColors.GREEN)
 
+    # Install wheel into the venv for faster installs & no errors
+    print("Installing build dependencies...")
+    output, poll = run_sys_command("{}/bin/pip".format(venv_path), "install", "wheel")
+    if poll != 0:
+        print_c("Failed to install wheel in the venv, continuing without it")
+        print_c("You may have slow install times or see some errors, but it will still work.")
+
 
 def install_octoprint(venv_path, backup_path):
     print("\nInstalling OctoPrint... ", end="")
@@ -630,7 +637,7 @@ if __name__ == '__main__':
     if not confirm_to_go():
         bail("Bye!")
 
-    print("\nChecking system info...")
+    print("Checking system info...")
     preflight = Checks()
     preflight.run()
 
