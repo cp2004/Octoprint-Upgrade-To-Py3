@@ -35,6 +35,9 @@ SCRIPT_VERSION = '2.1.14'
 LATEST_OCTOPRINT = '1.5.3'
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
 
+class OctoPi:
+    venv_path = "/home/pi/oprint/"
+
 # Coloured text constants & classes
 BASE = '\033['
 
@@ -168,27 +171,83 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
         return False
 
 
+# -----------------
+# Class holding all the checks
+# -----------------
+class Checks:
+    def run(self):
+        """
+        Some checks to run before the majority of the script is executed
+        """
+        if not self.is_linux():
+            print_c("Sorry, this script needs to be run on Linux :(", TextColors.YELLOW)
+            print_c("For other OSes (except Windows), you can create a backup, create a new virtualenv & then restore the backup. Backup & restore is not available on windows.")
+            bail("Error: Non linux OS detected. Exiting...")
+
+        if not self.is_not_root() and not args.iknowwhatimdoing:
+            print_c("This script should not be run as root - please run as your standard user account  (no `sudo`!)", TextColors.YELLOW)
+            print_c("Please run the script as it says in the guides, using `python3 upgrade.py`", TextColors.YELLOW)
+            bail("Error: Should not be run as root. Exiting...")
+
+        if not self.requests_installed():
+            print_c("The requests dependency is not installed - without this, no plugins are able to be installed.", TextColors.YELLOW)
+            print("You may need to install it with `python3 -m pip install requests` or similar.")
+            print_c("Do you still wish to continue?", TextColors.YELLOW)
+            if not confirm_to_go():
+                bail("Bye!")
+
+    @staticmethod
+    def is_linux():
+        return sys.platform == "linux"
+
+    @staticmethod
+    def is_not_root():
+        return os.geteuid() != 0
+
+    @staticmethod
+    def requests_installed():
+        try:
+            import requests  # noqa
+            return True
+        except ImportError:
+            return False
+
+    @staticmethod
+    def is_octopi():
+        return os.path.isfile(PATH_TO_OCTOPI_VERSION)
+
+    def is_octopi_compatible(self):
+        """
+        OctoPi 0.17 & 0.18 is allowed through here, 0.16 is too old and newer
+        versions use Py3 by default. Some early 0.18 didn't.
+        """
+        if not self.is_octopi():
+            return False
+
+        valid = False
+        major = minor = patch = None
+        with open(PATH_TO_OCTOPI_VERSION, 'r') as version_file:
+            for line in version_file:
+                if line:
+                    try:
+                        major, minor, patch = line.strip().split(".")
+                    except Exception:
+                        print_c("Warning: Could not read OctoPi version")
+                        valid = False
+
+        if major and minor and patch:
+            if int(major) == 0 and 16 < int(minor) <= 18:
+                valid = True
+
+        if valid:
+            print("Detected OctoPi version {}.{}.{}".format(major, minor, patch))
+
+        return valid
+
+
 # ---------------------
 # Actions to take. Roughly in order of execution in the script
 # ---------------------
-
-def confirm_linux():
-    return sys.platform == 'linux'
-
-
-def confirm_no_root():
-    euid = os.geteuid()
-    return euid != 0
-
-
-def check_requests():
-    try:
-        import requests  # noqa
-        return True
-    except ImportError:
-        return False
-
-
 def start_text():
     print("OctoPrint Upgrade to Py 3 (v{})\n".format(SCRIPT_VERSION))
     print("This script will move your existing OctoPrint configuration from Python 2 to Python 3")
@@ -196,54 +255,6 @@ def start_text():
     print_c("and it will disrupt any ongoing print jobs.", TextColors.RED, TextStyles.BRIGHT)
     print("\nIt will install the latest version of OctoPrint and all plugins.")
     print("No configuration or other files will be overwritten\n")
-
-
-def get_sys_info():
-    """Finds out whether the underlying OS is compatible with this script
-
-    Returns:
-        2 tuple: platform valid, octopi valid
-    """
-    valid = sys.platform == 'linux'
-    octopi = False
-    if valid:
-        if os.path.isfile(PATH_TO_OCTOPI_VERSION):
-            valid = validate_octopi_ver()  # 0.16 <= ver < 0.18
-            if not valid:
-                print_c("Your OctoPi install does not support upgrading OctoPrint to Python 3 - "
-                        "Please upgrade your install.", TextColors.RED)
-                print_c("Details: https://github.com/cp2004/Octoprint-Upgrade-To-Py3#what-do-i-do-if-my-system-is-not-supported", TextColors.YELLOW)
-            octopi = True
-        else:
-            octopi = False
-    return valid, octopi
-
-
-def validate_octopi_ver():
-    """
-    Supported versions of OctoPi are 0.16 an 0.17.
-    0.15 and earlier do not have required dependencies installed.
-    """
-    valid = False
-    major = minor = patch = 0
-
-    with open(PATH_TO_OCTOPI_VERSION, 'r') as version_file:
-        for line in version_file:
-            if line:  # Make sure the line is not empty - who knows what might be there
-                try:
-                    major, minor, patch = line.split(".")
-                except Exception as e:
-                    if not major or not minor or not major:
-                        print("Problem accessing OctoPi version number, falling back to manual input")
-                        print(e)
-                        valid = False
-    if major or minor or patch:
-        if int(major) == 0:
-            if 16 < int(minor) <= 18:
-                valid = True
-
-    print("OctoPi version: {}.{}.{}".format(major, minor, patch.replace("\n", "")))
-    return valid
 
 
 def test_octoprint_version(venv_path):
@@ -623,37 +634,25 @@ def end_text(venv_path):
 
 
 if __name__ == '__main__':
-    # Linux check needs to come as the *first* thing, rather than
-    if not confirm_linux():
-        print_c("Sorry, this script needs to be run on Linux :(", TextColors.YELLOW)
-        print_c("For other OSes (except Windows), you can create a backup, create a new virtualenv & then restore the backup. Backup & restore is not available on windows.")
-        bail("Error: Non linux OS detected. Exiting...")
-
-    # This script **should not** be run as root unless you know **exactly** what you are doing
-    if not confirm_no_root() and not args.iknowwhatimdoing:
-        print_c("This script should not be run as root - please run as your standard user account  (no `sudo`!)", TextColors.YELLOW)
-        print_c("Please run the script as it says in the guides, using `python3 upgrade.py`", TextColors.YELLOW)
-        bail("Error: Should not be run as root, exiting")
-
-    if not check_requests():
-        print_c("The requests dependency is not installed - without this, no plugins are able to be installed.", TextColors.YELLOW)
-        print("You may need to install it with `python3 -m pip install requests` or similar.")
-        print_c("Do you still wish to continue?", TextColors.YELLOW)
-        if not confirm_to_go():
-            bail("Bye!")
-
     start_text()
     if not confirm_to_go():
         bail("Bye!")
 
-    # Validate system info
-    print("Detecting system info...")
-    sys_valid, octopi_valid = get_sys_info()
-    if not sys_valid:
-        bail("Looks like your OS is not linux, or the OctoPi version number is un-readable")
-    path_to_venv, commands, config_dir = get_env_config(octopi_valid)
+    print("\nChecking system info...")
+    preflight = Checks()
+    preflight.run()
 
-    print("Getting OctoPrint version...")
+    is_octopi = preflight.is_octopi()
+    is_octopi_compatible = preflight.is_octopi_compatible()
+
+    if is_octopi and not is_octopi_compatible:
+        print_c("Looks like your OctoPi install is not compatible with this script")
+        print_c("Please check your other options for upgrading to Python 3.")
+        bail("Fatal Error: OctoPi not compatible, exiting...")
+
+    path_to_venv, commands, config_dir = get_env_config(is_octopi)
+
+    print("Checking OctoPrint version...")
     octoprint_greater_140 = test_octoprint_version(path_to_venv)
     if not octoprint_greater_140:
         bail("Please upgrade to an OctoPrint version >= 1.4.0 for Python 3 compatibility")
