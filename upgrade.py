@@ -32,11 +32,12 @@ import argparse
 
 # CONSTANTS
 SCRIPT_VERSION = '2.1.14'
-LATEST_OCTOPRINT = '1.5.3'
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
+
 
 class OctoPi:
     venv_path = "/home/pi/oprint/"
+
 
 # Coloured text constants & classes
 BASE = '\033['
@@ -169,6 +170,41 @@ def confirm_to_go(msg="Press [enter] to continue or ctrl-c to quit"):
         return True
     except KeyboardInterrupt:
         return False
+
+
+def run_apt_install(package, backup_path=None):
+    print("Installing {}...".format(package))
+    output, poll = run_sys_command(["sudo", "apt-get", "install", package, "-y"], sudo=True)
+    if poll != 0:
+        print_c("ERROR: failed to install {}".format(package), TextColors.RED)
+        print_c("Please try manually")
+        if backup_path:
+            cleanup(backup_path)
+        bail("Fatal error: Exiting")
+    else:
+        for line in output:
+            if 'newest version' in line:
+                print_c(line, TextColors.GREEN)
+                return
+        print_c("Successfully installed python3-dev", TextColors.GREEN)
+
+
+def check_installed_package(package, backup_path=None):
+    print("Checking package list for {}".format(package))
+    output, poll = run_sys_command(["dpkg-query", "-l"])
+    if poll != 0:
+        print_c("ERROR: failed to list installed packages", TextColors.RED)
+        if backup_path:
+            cleanup(backup_path)
+        bail("Fatal error: Exiting")
+
+    else:
+        for line in output:
+            if line.startswith(package, 4):
+                print_c("{} is already installed".format(package), TextColors.GREEN)
+                return True
+
+    return False
 
 
 # -----------------
@@ -469,50 +505,6 @@ def read_plugins_from_backup(backup_path):
     return plugin_keys
 
 
-def check_python3_dev(backup_path):
-    print("Checking package list for python3-dev")
-    output, poll = run_sys_command(['dpkg-query', '-l'], sudo=False)
-    if poll != 0:
-        print_c("ERROR: failed to list installed packages", TextColors.RED)
-        print("Please try manually")
-        cleanup(backup_path)
-        bail("Fatal error: Exiting")
-
-    else:
-        for line in output:
-            if line.startswith('python3-dev', 4):
-                print_c("Successfully checked python3-dev", TextColors.GREEN)
-                return
-
-    print_c("python3-dev not installed, proceeding to install", TextColors.YELLOW)
-    install_python3_dev(backup_path)
-
-
-def install_python3_dev(backup_path):
-    print("Root access is required to install python3-dev, please fill in the password prompt if shown")
-    print("Updating package list...")
-    output, poll = run_sys_command(['sudo', 'apt-get', 'update'], sudo=True)
-    if poll != 0:
-        print_c("ERROR: failed to update package list", TextColors.RED)
-        print("Please try manually")
-        cleanup(backup_path)
-        bail("Fatal error: Exiting")
-
-    print("Installing python3-dev...")
-    output, poll = run_sys_command(['sudo', 'apt-get', 'install', 'python3-dev', '-y'], sudo=True)
-    if poll != 0:
-        print_c("ERROR: failed to install python3-dev", TextColors.RED)
-        print("Please try manually")
-        cleanup(backup_path)
-        bail("Fatal error: Exiting")
-    else:
-        for line in output:
-            if 'newest version' in line:
-                print_c(line, TextColors.GREEN)
-                return
-        print_c("Successfully installed python3-dev", TextColors.GREEN)
-
-
 def stop_octoprint(command, backup_path):
     output, poll = run_sys_command(command.split())
     if poll != 0:
@@ -661,10 +653,14 @@ if __name__ == '__main__':
     backup_location = create_backup(path_to_venv, config_dir)
     plugin_keys = read_plugins_from_backup(backup_location)
 
-    # Check for python3-dev
+    # Check for & install python3-dev if necessary
     # backup_location is passed to these so that they can clean up in the event of an error
-    # If python3-dev is not present, try to install it
-    check_python3_dev(backup_location)
+    if not check_installed_package("python3-dev"):
+        run_apt_install("python3-dev", backup_location)
+
+    # Check for & install python3-venv if necessary
+    if not check_installed_package("python3-venv"):
+        run_apt_install("python3-venv", backup_location)
 
     # Install OctoPrint
     if commands['stop']:
