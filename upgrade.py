@@ -31,7 +31,7 @@ import re
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.2.0'
+SCRIPT_VERSION = '2.2.1'
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
 
 
@@ -187,6 +187,16 @@ def run_apt_install(package, backup_path=None):
                 print_c(line, TextColors.GREEN)
                 return
         print_c("Successfully installed python3-dev", TextColors.GREEN)
+
+def update_package_list(backup_path=None):
+    print("Updating package list...")
+    output, poll = run_sys_command(["sudo", "apt-get", "update", "--allow-releaseinfo-change"], sudo=True)
+    if poll != 0:
+        print_c("ERROR: failed to update package list", TextColors.RED)
+        print_c("Please try manually")
+        if backup_path:
+            cleanup(backup_path)
+        bail("Fatal error: Exiting")
 
 
 def check_installed_package(package, backup_path=None):
@@ -659,6 +669,9 @@ if __name__ == '__main__':
     # Create backup & read plugin list
     backup_location = create_backup(path_to_venv, config_dir)
     plugin_keys = read_plugins_from_backup(backup_location)
+
+    # Update package list - if this isn't done, it can cause errors installing the packages.
+    update_package_list(backup_location)
 
     # Check for & install python3-dev if necessary
     # backup_location is passed to these so that they can clean up in the event of an error
