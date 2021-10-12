@@ -548,6 +548,9 @@ def create_new_venv(venv_path, backup_path):
         print_c("Failed to install wheel in the venv, continuing without it")
         print_c("You may have slow install times or see some errors, but it will still work.")
 
+    print_c("\nIf you see some errors like 'Failed building wheel' below, please *ignore* them and let the upgrade continue")
+    print_c("Pip will retry installing the plugins using a different method and it will be successful.")
+
 
 def install_octoprint(venv_path, backup_path):
     print("\nInstalling OctoPrint... ", end="")
