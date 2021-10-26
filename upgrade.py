@@ -186,7 +186,7 @@ def run_apt_install(package, backup_path=None):
             if 'newest version' in line:
                 print_c(line, TextColors.GREEN)
                 return
-        print_c("Successfully installed python3-dev", TextColors.GREEN)
+        print_c("Successfully installed {}".format(package), TextColors.GREEN)
 
 def update_package_list(backup_path=None):
     print("Updating package list...")
