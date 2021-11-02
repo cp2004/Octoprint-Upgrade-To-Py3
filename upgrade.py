@@ -548,6 +548,13 @@ def create_new_venv(venv_path, backup_path):
         print_c("Failed to install wheel in the venv, continuing without it")
         print_c("You may have slow install times or see some errors, but it will still work.")
 
+    # OctoPi 0.17/Python 3.7.3 ships with pip 18.x, which is too old.
+    print("Updating pip...")
+    output, poll = run_sys_command(["{}/bin/pip".format(venv_path), "install", "--upgrade", "pip"])
+    if poll != 0:
+        print_c("Failed to update pip. Upgrade to Python 3 will succeed, but direct updates in OctoPrint")
+        print_c("may not be supported if the existing pip version is outdated.")
+
 
 def install_octoprint(venv_path, backup_path):
     print("\nInstalling OctoPrint... ", end="")
