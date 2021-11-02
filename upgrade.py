@@ -343,7 +343,7 @@ def get_env_config(octopi):
 
         while not venv_path:
             try:
-                path = input("Path: ")
+                path = input("Virtual environment path: ")
             except KeyboardInterrupt:
                 bail("Bye!")
             if not path:
@@ -368,11 +368,11 @@ def get_env_config(octopi):
         config_base = "/home/pi/.octoprint"
     else:
         print("Please provide the path to your virtual environment and the config directory of OctoPrint")
-        print("On OctoPi, this would be `/home/pi/oprint` (venv), `/home/pi/.octoprint` (config)\n"
+        print("On OctoPi, this would be `/home/pi/oprint` (for the venv), `/home/pi/.octoprint` (for config)\n"
               "and service commands commands `sudo service octoprint stop/start`")
         while not venv_path:
             try:
-                path = input("Path: ")
+                path = input("Virtual environment path: ")
             except KeyboardInterrupt:
                 bail("Bye!")
             if not path:
@@ -394,7 +394,7 @@ def get_env_config(octopi):
 
         while not config_base:
             try:
-                conf = input("Config directory: ")
+                conf = input("Config directory path: ")
             except KeyboardInterrupt:
                 bail("Bye!")
             if not conf:
