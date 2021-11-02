@@ -31,7 +31,7 @@ import re
 import argparse
 
 # CONSTANTS
-SCRIPT_VERSION = '2.2.1'
+SCRIPT_VERSION = '2.2.2'
 PATH_TO_OCTOPI_VERSION = '/etc/octopi_version'
 
 
