@@ -38,7 +38,7 @@ If you don't meet the above requirements, then please see ['What can I do if my 
 
 ### Running the script
 
-Run the following 2 commands in the terminal to start the upgrade:
+Run the following 2 commands in the OS terminal (either through SSH or a connected keyboard/monitor) to start the upgrade:
 
 ```
 curl -L https://get.octoprint.org/py3/upgrade.py --output upgrade.py
