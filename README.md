@@ -111,11 +111,9 @@ Please open an issue if you find something wrong, or have a feature request.
 If you would like to make a PR, please do so against the `devel` branch as `master` is the download branch for users and I don't want changes that accidentally break something!
 If your are making a PR for a big feature, please open an issue first so we can discuss.
 
-## Supporting the project!
-Found this script useful?
+## Sponsors
 
-You can support my development (**cp2004**) of this script through [Github Sponsors](https://github.com/sponsors/cp2004) from as little as $1!
+* Sponsor
 
-You can also support Gina over on the main OctoPrint project [here](https://octoprint.org/support-octoprint/)
+## 🔨
 
-<a href="https://www.jetbrains.com/?from=cp2004"><img align="left" width="100" height="100" src="jetbrains-variant-2.png" alt="JetBrains Logo"></a> Thanks to JetBrains for supporting an open source license for their brilliant IDEs that I use to develop my projects!
