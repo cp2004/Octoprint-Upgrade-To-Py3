@@ -137,10 +137,10 @@ def get_python_version(venv_path):
     process = subprocess.Popen(
         ['{}/bin/python'.format(venv_path), '--version'],
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.STDOUT
     )
     while True:
-        output_line_stderr = process.stderr.readline().decode('utf-8', errors='replace')
+        output_line_stderr = process.stdout.readline().decode('utf-8', errors='replace')
         poll = process.poll()
         if output_line_stderr == '' and process.poll() is not None:
             break
@@ -424,6 +424,8 @@ def check_venv_python(venv_path):
         line = line.strip()
         if line.endswith("+"):
             line = line[:-1]
+
+        print("Found version: {}".format(line))
 
         match = re.search(r"^Python (?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?", line)
         if match:  # This should catch the NoneType errors, but *just in case* it is here.
