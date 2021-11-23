@@ -113,7 +113,13 @@ If your are making a PR for a big feature, please open an issue first so we can 
 
 ## Sponsors
 
-* Sponsor
+* [@iFrostizz](https://github.com/iFrostizz)
+* [@KenLucke](https://github.com/KenLucke)
 
+As well as 7 others supporting me through [GitHub Sponsors](https://github.com/sponsors/cp2004)!
+
+## Supporting my efforts
+
+I created this project in my spare time, so if you have found it useful or enjoyed using it then please consider [supporting it's development!](https://github.com/sponsors/cp2004). You can sponsor monthly or one time, for any amount you choose.
 ## 🔨
 
