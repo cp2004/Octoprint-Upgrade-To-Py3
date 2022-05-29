@@ -113,6 +113,7 @@ If your are making a PR for a big feature, please open an issue first so we can 
 
 ## Sponsors
 
+* [SimplyPrint](https://simplyprint.io/)
 * [@iFrostizz](https://github.com/iFrostizz)
 * [@KenLucke](https://github.com/KenLucke)
 
